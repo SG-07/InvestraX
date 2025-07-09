@@ -1,40 +1,29 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ScrollToTop from "./ScrollToTop";
-import Navbar from "./landing-page/Navbar";
-import Footer from "./landing-page/Footer";
-import Signup from "./landing-page/signup/Signup";
-import AboutPage from "./landing-page/about/AboutPage";
-import ProductPage from "./landing-page/products/ProductPage";
-import PricingPage from "./landing-page/pricing/PricingPage";
-import HomePage from "./landing-page/home/HomePage";
-import Contact from "./landing-page/support/ContactPage";
-import NotFound from "./landing-page/NotFound";
+import { Routes, Route } from 'react-router-dom';
+import Layout from './pages/Layout';
+import HomePage from './routes/home/HomePage';
+import AboutPage from './routes/about/AboutPage';
+import NotFound from '@components/layout/NotFound'; // make sure it's correctly imported
+import ScrollToTop from './ScrollToTop';
+import PricingPage from './routes/pricing/PricingPage';
+import ProductPage from './routes/products/ProductPage';
+import SupportPage from './routes/support/SupportPage';
 
-export default function App() {
+function App() {
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      
-      {/* Add full height flex layout wrapper */}
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-
-        {/* Main content with padding for navbar and grow space */}
-        <main className="pt-20 flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/products" element={<ProductPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <>
+      <ScrollToTop /> 
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route path="products" element={<ProductPage />} />
+          <Route path="support" element={<SupportPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 
+export default App;

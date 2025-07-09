@@ -8,7 +8,7 @@ const navItems = [
   { name: "About", to: "/about" },
   { name: "Products", to: "/products" },
   { name: "Pricing", to: "/pricing" },
-  { name: "Contact", to: "/contact", isPrimary: true },
+  { name: "Support", to: "/support" },
 ];
 
 export default function Navbar() {
