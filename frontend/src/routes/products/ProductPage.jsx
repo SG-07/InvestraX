@@ -1,6 +1,6 @@
-import Hero from "./Hero";
-import LeftSection from "./LeftSection";
-import RightSection from "./RightSection";
+import Hero from '@routes/products/Hero';
+import LeftSection from '@routes/products/LeftSection';
+import RightSection from '@routes/products/RightSection';
 
 function ProductPage() {
   return (

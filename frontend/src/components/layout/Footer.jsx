@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const Footer = () => {
   return (
     <footer className="bg-gray-100">
@@ -23,21 +25,19 @@ export const Footer = () => {
             </p>
             <ul className="space-y-2 text-gray-500">
               <li>
-                <a href="/#">Open Demat Account</a>
+                <Link to="/underconstruction">Open Demat Account</Link>
               </li>
               <li>
-                <a href="/#">Minor Demat Account</a>
+                <Link to="/underconstruction">Minor Demat Account</Link>
               </li>
               <li>
-                <a href="/#">NRI Demat Account</a>
+                <Link to="/underconstruction">NRI Demat Account</Link>
               </li>
               <li>
-                <a href="/#">Fund Transfer</a>
+                <Link to="/underconstruction">Fund Transfer</Link>
               </li>
               <li>
-                <a href="/#">
-                  Referral Program <span className="text-teal-600 text-xs">New</span>
-                </a>
+                <Link to="/underconstruction">Referral Program <span className="text-teal-600 text-xs">New</span></Link>
               </li>
             </ul>
           </div>
@@ -48,15 +48,13 @@ export const Footer = () => {
             </p>
             <ul className="space-y-2 text-gray-500">
               <li>
-                <a href="/#">About</a>
+                <Link to="/underconstruction">About</Link>
               </li>
               <li>
-                <a href="/#">Philosophy</a>
+                <Link to="/underconstruction">Philosophy</Link>
               </li>
               <li>
-                <a href="/#">
-                  Careers <span className="text-teal-600 text-xs">New</span>
-                </a>
+                <Link to="/underconstruction">Careers <span className="text-teal-600 text-xs">New</span></Link>
               </li>
             </ul>
           </div>
@@ -67,13 +65,13 @@ export const Footer = () => {
             </p>
             <ul className="space-y-2 text-gray-500">
               <li>
-                <a href="/#">Help Center</a>
+                <Link to="/underconstruction">Help Center</Link>
               </li>
               <li>
-                <a href="/#">Privacy Policy</a>
+                <Link to="/underconstruction">Privacy Policy</Link>
               </li>
               <li>
-                <a href="/#">Conditions</a>
+                <Link to="/underconstruction">Conditions</Link>
               </li>
             </ul>
           </div>
@@ -82,12 +80,13 @@ export const Footer = () => {
             <p className="text-sm uppercase text-gray-700 font-large font-bold mb-3">
               Contact Us
             </p>
+            
             <ul className="space-y-2 text-gray-500">
               <li>
-                <a href="/#">XXX XXXX, Floor 4, San Francisco, CA</a>
+                <Link to="/underconstruction">XXX XXXX, Floor 4, San Francisco, CA</Link>
               </li>
               <li>
-                <a href="/#">contact@company.com</a>
+                <Link to="/underconstruction">contact@company.com</Link>
               </li>
             </ul>
           </div>
