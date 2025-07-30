@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "../../frontend/src/components/ProtectedRoute"; 
+import ProtectedRoute from "./components/ProtectedRoute"; 
 import Home from "./components/Home";
 import Orders from "./components/Orders";
 import Holdings from "./components/Holdings";
