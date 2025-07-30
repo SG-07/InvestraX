@@ -33,7 +33,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/auth/login",
+        `${import.meta.env.VITE_API_URL}/auth/login`,
         { ...inputValue },
         { withCredentials: true }
       );
@@ -41,7 +41,7 @@ const Login = () => {
       if (success) {
         handleSuccess(message);
         setTimeout(() => {
-          window.location.href = "http://localhost:5174/";
+          window.location.href = "https://investrax-dashboard.onrender.com";
         }, 2000);
       } else {
         handleError(message);

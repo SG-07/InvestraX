@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 // Models
-const HoldingsModel = require("./Models/HoldingsModel");
+const HoldingsModel = require("./Models/HoldingsModel");git commit -m "Fix: Add axios to dashboard dependencies"
 const PositionsModel = require("./Models/PositionsModel");
 const OrdersModel = require("./Models/OrdersModel");
 
@@ -34,8 +34,6 @@ app.use(
 /* ---------------------------- DATABASE SETUP ---------------------------- */
 mongoose
   .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
   })
