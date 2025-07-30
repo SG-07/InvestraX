@@ -2,11 +2,13 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './pages/Layout';
 import HomePage from './routes/home/HomePage';
 import AboutPage from './routes/about/AboutPage';
-import NotFound from '@components/layout/NotFound'; // make sure it's correctly imported
+import NotFound from '@components/layout/NotFound';
 import ScrollToTop from './ScrollToTop';
 import PricingPage from './routes/pricing/PricingPage';
 import ProductPage from './routes/products/ProductPage';
 import SupportPage from './routes/support/SupportPage';
+import Main from "../../dashboard/src/components/Home";
+import { Login, Signup } from "./routes/signup/index";
 
 function App() {
   return (
@@ -19,6 +21,9 @@ function App() {
           <Route path="pricing" element={<PricingPage />} />
           <Route path="products" element={<ProductPage />} />
           <Route path="support" element={<SupportPage />} />
+          <Route path="/dashboard/*" element={<Main />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
