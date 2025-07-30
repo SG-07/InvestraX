@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 // Models
-const HoldingsModel = require("./Models/HoldingsModel");git commit -m "Fix: Add axios to dashboard dependencies"
+const HoldingsModel = require("./Models/HoldingsModel");
 const PositionsModel = require("./Models/PositionsModel");
 const OrdersModel = require("./Models/OrdersModel");
 
@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"], // your frontend URL
+    origin: ["https://investrax-frontend.onrender.com", "https://investrax-dashboard.onrender.com"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
