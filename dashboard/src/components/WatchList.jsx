@@ -39,8 +39,8 @@ export default function WatchList() {
   };
 
   return (
-    <div className="flex-[0_0_32%] h-full shadow bg-white flex flex-col">
-      {/* Sticky Search Header */}
+    <div className="flex-[0_0_25%] h-full shadow bg-white flex flex-col">
+      {/* Sticky Header */}
       <div className="border-b border-gray-200 p-4 sticky top-0 bg-white z-10">
         <div className="relative">
           <input
@@ -55,14 +55,14 @@ export default function WatchList() {
       </div>
 
       {/* Scrollable Watchlist */}
-      <ul className="flex-1 overflow-y-auto">
+      <ul className="flex-1 overflow-y-auto max-h-[500px]">
         {watchlist.map((stock) => (
           <WatchListItem key={stock.name} stock={stock} />
         ))}
       </ul>
 
-      {/* Doughnut Chart Footer */}
-      <div className="p-4 border-t border-gray-200">
+      {/* Chart Footer */}
+      <div className="mt-auto p-4 border-t border-gray-200">
         <DoughnutChart data={chartData} />
       </div>
     </div>
