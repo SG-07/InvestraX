@@ -7,10 +7,11 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const { data } = await axios.get("http://localhost:8080/auth/verify", {
-          withCredentials: true,
-        });
-        setIsAuthenticated(data.success);
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/auth/verify`,
+          { withCredentials: true }
+        );
+        setIsAuthenticated(data.success); // success should be true/false
       } catch (error) {
         setIsAuthenticated(false);
       }
@@ -20,9 +21,9 @@ const ProtectedRoute = ({ children }) => {
 
   if (isAuthenticated === null) return null; // or loading spinner
 
-  // 🔁 If not authenticated, redirect to main site
+  // 🔁 If not authenticated, redirect to frontend
   if (!isAuthenticated) {
-    window.location.href = "http://localhost:5173/";
+    window.location.href = import.meta.env.VITE_FRONTEND_URL;
     return null;
   }
 
