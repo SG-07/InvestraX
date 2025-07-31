@@ -1,6 +1,5 @@
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute"; 
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./components/Home";
 import Orders from "./components/Orders";
 import Holdings from "./components/Holdings";
@@ -27,6 +26,9 @@ function App() {
           <Route path="positions" element={<Positions />} />
           <Route path="funds" element={<Funds />} />
           <Route path="apps" element={<Apps />} />
+
+          {/* fallback for undefined route */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Routes>
     </Router>

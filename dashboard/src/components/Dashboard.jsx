@@ -1,12 +1,6 @@
-import { Route, Routes } from "react-router-dom";
-import Application from "../components/Applications"
-import Funds from "./Funds";
-import Holdings from "./Holdings";
-import Orders from "./Orders";
-import Positions from "./Positions";
-import Summary from "./Summary";
 import WatchList from "./WatchList";
 import { GeneralContextProvider } from "./GeneralContext";
+import { Outlet } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -15,14 +9,7 @@ const Dashboard = () => {
         <WatchList />
       </GeneralContextProvider>
       <div className="basis-[68%] h-full box-border overflow-y-auto px-[2%] py-[3%]">
-        <Routes>
-          <Route exact path="/" element={<Summary />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/holdings" element={<Holdings />} />
-          <Route path="/positions" element={<Positions />} />
-          <Route path="/funds" element={<Funds />} />
-          <Route path="/apps" element={<Application />} />
-        </Routes>
+        <Outlet />
       </div>
     </div>
   );
