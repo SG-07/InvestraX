@@ -1,8 +1,13 @@
+import { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import WatchList from "./WatchList";
 import { GeneralContextProvider } from "./GeneralContext";
-import { Outlet } from "react-router-dom";
 
 const Dashboard = () => {
+  useEffect(() => {
+    console.log("📊 Dashboard component loaded");
+  }, []);
+
   return (
     <div className="w-full h-[90vh] flex items-center box-border">
       <GeneralContextProvider>

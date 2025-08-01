@@ -5,49 +5,45 @@ import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState({
-    email: "",
-    password: "",
-  });
+  const [inputValue, setInputValue] = useState({ email: "", password: "" });
   const { email, password } = inputValue;
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
-    setInputValue({
-      ...inputValue,
-      [name]: value,
-    });
+    setInputValue({ ...inputValue, [name]: value });
   };
 
   const handleError = (err) =>
-    toast.error(err, {
-      position: "bottom-left",
-    });
+    toast.error(err, { position: "bottom-left" });
 
   const handleSuccess = (msg) =>
-    toast.success(msg, {
-      position: "bottom-left",
-    });
+    toast.success(msg, { position: "bottom-left" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("🚀 Sending login request...");
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/login`,
         { ...inputValue },
         { withCredentials: true }
       );
       const { success, message } = data;
+
       if (success) {
         handleSuccess(message);
+        console.log("✅ Login successful:", message);
         setTimeout(() => {
-          window.location.href = "https://investrax-dashboard.onrender.com";
+          const redirectURL = "https://investrax-dashboard.onrender.com";
+          console.log("🌐 Redirecting to:", redirectURL);
+          window.location.href = redirectURL;
         }, 2000);
       } else {
+        console.log("❌ Login failed:", message);
         handleError(message);
       }
     } catch (error) {
-      console.log(error);
+      console.log("❌ Error in login request:", error);
       if (
         error.response &&
         error.response.data &&

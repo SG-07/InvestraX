@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./components/Home";
 import Orders from "./components/Orders";
@@ -9,6 +11,10 @@ import Summary from "./components/Summary";
 import Apps from "./components/Applications";
 
 function App() {
+  useEffect(() => {
+    console.log("🚦 Dashboard router mounted");
+  }, []);
+
   return (
     <Router>
       <Routes>
@@ -26,7 +32,6 @@ function App() {
           <Route path="positions" element={<Positions />} />
           <Route path="funds" element={<Funds />} />
           <Route path="apps" element={<Apps />} />
-
           {/* fallback for undefined route */}
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
