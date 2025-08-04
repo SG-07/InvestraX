@@ -17,6 +17,8 @@ const authRoutes = require("./Routes/AuthRoute");
 const app = express();
 const port = process.env.PORT || 8080;
 
+console.log("✅ Backend starting...");
+
 /* ----------------------------- CORS SETUP ----------------------------- */
 const corsOptions = {
   origin: [
@@ -27,9 +29,8 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
-
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions)); // ✅ Preflight handling
+app.options("/*", cors(corsOptions));
 
 /* ----------------------------- MIDDLEWARE ----------------------------- */
 app.use(cookieParser());
@@ -63,7 +64,8 @@ process.on("SIGINT", async () => {
 });
 
 /* ------------------------------- ROUTES ------------------------------- */
-app.use("/auth", authRoutes); // JWT login/signup/verify routes
+console.log("✅ Registering /auth routes...");
+app.use("/auth", authRoutes);
 
 app.get("/allHoldings", async (req, res) => {
   const allHoldings = await HoldingsModel.find({});
