@@ -13,7 +13,7 @@ module.exports.Signup = async (req, res) => {
       return res.json({ message: "User already exists" });
     }
 
-    const existingUsername = await User.findOne({ email });
+    const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       return res.json({ message: "Username already exists" });
     }
@@ -23,7 +23,9 @@ module.exports.Signup = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "Lax",
+      sameSite: "None", // ✅ Needed for cross-site cookies
+      secure: true,     // ✅ Required for HTTPS on Render
+      path: "/",
     });
 
     res.status(201).json({
@@ -54,9 +56,9 @@ module.exports.Login = async (req, res) => {
     const token = createSecretToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "Lax", // Important for different ports on localhost
-      secure: false, // Set to true if using HTTPS (production)
-      path: "/", // Ensure it's accessible across routes
+      sameSite: "None", 
+      secure: true,     
+      path: "/",
     });
 
     res.status(200).json({
@@ -71,6 +73,11 @@ module.exports.Login = async (req, res) => {
 };
 
 module.exports.Logout = (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "None", // ✅ Match cookie config
+    secure: true,     // ✅ Match cookie config
+    path: "/",
+  });
   res.json({ success: true, message: "Logged out" });
 };

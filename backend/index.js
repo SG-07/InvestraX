@@ -17,23 +17,25 @@ const authRoutes = require("./Routes/AuthRoute");
 const app = express();
 const port = process.env.PORT || 8080;
 
+/* ----------------------------- CORS SETUP ----------------------------- */
+const corsOptions = {
+  origin: [
+    "https://investrax-frontend.onrender.com",
+    "https://investrax-dashboard.onrender.com"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("/*", cors(corsOptions)); // ✅ Preflight handling
+
 /* ----------------------------- MIDDLEWARE ----------------------------- */
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
-
-app.use(
-  cors({
-    origin: [
-      "https://investrax-frontend.onrender.com",
-      "https://investrax-dashboard.onrender.com"
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
 
 /* ---------------------------- DATABASE SETUP ---------------------------- */
 mongoose
@@ -41,7 +43,9 @@ mongoose
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
   })
-  .then(() => console.log(`✅ Connected to MongoDB: ${mongoose.connection.name}`))
+  .then(() =>
+    console.log(`✅ Connected to MongoDB: ${mongoose.connection.name}`)
+  )
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
