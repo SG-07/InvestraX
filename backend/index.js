@@ -74,6 +74,10 @@ app.post("/newOrder", async (req, res) => {
   res.send("✅ Order saved!");
 });
 
+app.get("/", (req, res) => {
+  res.send("backend started");
+});
+
 /* --------------------------- START SERVER --------------------------- */
 app.listen(port, () => {
   console.log(`🚀 Server running on port: ${port}`);
