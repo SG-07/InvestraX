@@ -25,11 +25,16 @@ app.use(bodyParser.json());
 
 app.use(
   cors({
-    origin: ["https://investrax-frontend.onrender.com", "https://investrax-dashboard.onrender.com"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [
+      "https://investrax-frontend.onrender.com",
+      "https://investrax-dashboard.onrender.com"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+app.options("*", cors());
 
 /* ---------------------------- DATABASE SETUP ---------------------------- */
 mongoose
