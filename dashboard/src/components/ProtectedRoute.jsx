@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
     console.log("⏳ ProtectedRoute mounted. Checking authentication...");
@@ -15,22 +15,11 @@ const ProtectedRoute = ({ children }) => {
           `${import.meta.env.VITE_API_URL}/auth/verify`,
           { withCredentials: true }
         );
-        console.log("✅ Verify request successful. Response:", data);
 
-        if (data.success) {
-          console.log("🎉 User is authenticated.");
-          setIsAuthenticated(true);
-        } else {
-          console.log("⚠️ Verify request returned success=false. Redirecting...");
-          setIsAuthenticated(false);
-        }
+        console.log("✅ Verify request successful. Response:", data);
+        setIsAuthenticated(data.status); // ✅ FIXED to match backend key
       } catch (error) {
         console.error("❌ Verification failed:", error);
-        if (error.response) {
-          console.error("📡 Server responded with:", error.response.status, error.response.data);
-        } else if (error.request) {
-          console.error("📡 No response received from server.");
-        }
         setIsAuthenticated(false);
       }
     };
@@ -39,7 +28,6 @@ const ProtectedRoute = ({ children }) => {
   }, []);
 
   if (isAuthenticated === null) {
-    console.log("⏳ Still verifying... showing loader");
     return <div className="text-center mt-10">Loading...</div>;
   }
 
@@ -49,7 +37,6 @@ const ProtectedRoute = ({ children }) => {
     return null;
   }
 
-  console.log("✅ Authenticated. Rendering protected content.");
   return children;
 };
 

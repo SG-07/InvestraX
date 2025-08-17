@@ -1,12 +1,13 @@
 const router = require("express").Router();
+const { Signup, Login, Logout } = require("../Controllers/AuthController");
+const { userVerification } = require("../Middleware/AuthMiddleware");
 
 console.log("✅ Auth routes file loaded");
 
-// Temporary test route (bypass JWT for now)
-router.get("/verify", (req, res) => {
-  console.log("📡 Received GET /auth/verify");
-  console.log("Cookies received:", req.cookies);
-  res.json({ message: "Verify route works", cookies: req.cookies });
-});
+router.post("/signup", Signup);
+router.post("/login", Login);
+router.get("/logout", Logout);
+
+router.get("/verify", userVerification);
 
 module.exports = router;
