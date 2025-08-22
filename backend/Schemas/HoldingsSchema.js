@@ -13,7 +13,7 @@ const HoldingsSchema = new Schema({
     },
     avg: {
         type: Number,
-        filename: String,
+        required: true,
     },
     price: {
         type: Number,

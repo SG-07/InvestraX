@@ -12,7 +12,11 @@ const PositionsModel = require("./Models/PositionsModel");
 const OrdersModel = require("./Models/OrdersModel");
 
 // Routes
-const authRoutes = require("./Routes/AuthRoute");
+const authRoutes = require("./Routes/AuthRoutes");
+const stockRoutes = require("./Routes/StocksRoute");
+
+// Services
+const { startStockUpdater } = require("./services/stockUpdater");
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -22,6 +26,7 @@ console.log("✅ Backend starting...");
 /* ----------------------------- CORS SETUP ----------------------------- */
 const corsOptions = {
   origin: [
+    "http://localhost:3000", // local dev
     "https://investrax-frontend.onrender.com",
     "https://investrax-dashboard.onrender.com"
   ],
@@ -66,6 +71,8 @@ process.on("SIGINT", async () => {
 /* ------------------------------- ROUTES ------------------------------- */
 console.log("✅ Registering /auth routes...");
 app.use("/auth", authRoutes);
+// Register routes
+app.use("/stocks", stockRoutes);
 
 app.get("/allHoldings", async (req, res) => {
   const allHoldings = await HoldingsModel.find({});
@@ -84,11 +91,15 @@ app.post("/newOrder", async (req, res) => {
   res.send("✅ Order saved!");
 });
 
-app.get("/", (req, res) => {
-  res.send("backend started");
+// ✅ API route for frontend to get all stocks from DB
+const StocksModel = require("./Models/StocksModel");
+app.get("/stocks", async (req, res) => {
+  const stocks = await StocksModel.find({});
+  res.json(stocks);
 });
 
 /* --------------------------- START SERVER --------------------------- */
 app.listen(port, () => {
   console.log(`🚀 Server running on port: ${port}`);
+  startStockUpdater(); // Start Yahoo Finance price updater
 });
