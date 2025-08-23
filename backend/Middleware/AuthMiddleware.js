@@ -1,30 +1,19 @@
 const jwt = require("jsonwebtoken");
 const User = require("../Models/UserModel");
 
-module.exports.userVerification = async (req, res) => {
-  console.log("📡 /auth/verify called");
-  console.log("📦 Cookies received:", req.cookies);
-
-  const token = req.cookies.token;
-  if (!token) {
-    console.log("❌ No token found in cookies");
-    return res.json({ status: false });
-  }
-
+module.exports.userVerification = async (req, res, next) => {
   try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ success: false, message: "No token" });
+
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-    console.log("🔑 Token decoded:", decoded);
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) return res.status(401).json({ success: false, message: "Invalid token" });
 
-    const user = await User.findById(decoded.id).select("username email");
-    if (!user) {
-      console.log("❌ No user found for this token");
-      return res.json({ status: false });
-    }
-
-    console.log("✅ User verified:", user.email);
-    res.json({ status: true, user });
+    req.user = user;
+    next();
   } catch (err) {
-    console.error("❌ Token verification failed:", err);
-    res.json({ status: false });
+    console.error("❌ Auth error:", err.message);
+    res.status(401).json({ success: false, message: "Unauthorized" });
   }
-};
+}
