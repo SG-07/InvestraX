@@ -1,43 +1,12 @@
-const { Schema } = require('mongoose');
+const mongoose = require("mongoose");
 
-const PositionsSchema = new Schema({
-    product: {
-        type: String,
-        required: true,
-        minLength: 1,
-    },
-    name: {
-        type: String,
-        required: true,
-        minLength: 1,
-    },
-    qty: {
-        type: Number,
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-        min: 1,
-    },
-    avg: {
-        type: Number,
-        required: true,
-    },
-    net: {
-        type: String,
-        required: true,
-        min: 1,
-    },
-    day: {
-        type: String,
-        required: true,
-    },
-    isLoss: {
-        type: Boolean,
-        required: true,
-    },
+const positionSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true, required: true },
+  symbol: { type: String, required: true },
+  qty: { type: Number, required: true }, // intraday / open P&L context
+  avg: { type: Number, required: true },
+  product: { type: String, enum: ["CNC", "MIS", "NRML"], default: "CNC" },
+  createdAt: { type: Date, default: Date.now },
 });
 
-
-module.exports = PositionsSchema;
+module.exports = positionSchema;
