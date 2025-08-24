@@ -1,9 +1,9 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
 const initData = require("./data");
-const { HoldingsModel } = require("./model/HoldingsModel");
+const { HoldingsModel } = require("./model/holdingsmodel");
 
-const { PositionsModel } = require("./model/PositionsModel");
+const { PositionsModel } = require("./model/positionsmodel");
 
 mongoose
   .connect(process.env.MONGODB_URI)

@@ -1,5 +1,5 @@
-const Positions = require("../Models/PositionsModel");
-const Stocks = require("../Models/StocksModel");
+const Positions = require("../models/positionsmodel");
+const Stocks = require("../models/stocksmodel");
 
 exports.list = async (req, res) => {
   const userId = req.user._id;

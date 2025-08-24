@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
-const StocksModel = require("../Models/StocksModel");
+const StocksModel = require("../models/stocksmodel");
 const companies = require("./companies"); 
 
 async function seedCompanies() {

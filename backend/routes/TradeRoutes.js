@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { buyStock, sellStock, resetAccount, getWallet } = require("../controllers/TradeController");
+const { buyStock, sellStock, resetAccount, getWallet } = require("../controllers/tradecontroller");
 
 // Trading routes
 router.post("/buy", buyStock);

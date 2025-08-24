@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const holdingSchema = require("./HoldingSchema");
-const transactionSchema = require("./TransactionSchema");
+const holdingSchema = require("./holdingschema");
+const transactionSchema = require("./transactionschema");
 
 const userSchema = new mongoose.Schema({
-  username:   { type: String, required: true, unique: true },
-  email:      { type: String, required: true, unique: true },
-  password:   { type: String, required: true },
-  balance:    { type: Number, default: 200000 }, // ₹2L starting balance
-  holdings:   [holdingSchema],
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  balance: { type: Number, default: 200000 }, // ₹2L starting balance
+  holdings: [holdingSchema],
   transactions: [transactionSchema],
-  createdAt:  { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Password hash

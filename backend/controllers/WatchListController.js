@@ -1,5 +1,5 @@
-const Watchlist = require("../Models/WatchlistModel");
-const Stocks = require("../Models/StocksModel");
+const Watchlist = require("../models/watchlistmodel");
+const Stocks = require("../models/stocksmodel");
 
 exports.list = async (req, res) => {
   const userId = req.user._id;

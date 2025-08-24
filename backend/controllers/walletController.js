@@ -1,4 +1,4 @@
-const User = require("../Models/UserModel");
+const User = require("../models/usermodel");
 
 // GET wallet info
 exports.getWallet = async (req, res) => {

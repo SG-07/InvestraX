@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { userVerification } = require("../Middleware/AuthMiddleware");
-const ctrl = require("../controllers/WatchListController");
+const { userVerification } = require("../middleware/authmiddleware");
+const ctrl = require("../controllers/watchlistcontroller");
 
 router.get("/", userVerification, ctrl.list);
 router.post("/", userVerification, ctrl.add);

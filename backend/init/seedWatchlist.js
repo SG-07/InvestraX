@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
-const WatchlistModel = require("../Models/WatchlistModel");
+const WatchlistModel = require("../models/watchlistmodel");
 
 async function seedWatchlist() {
   try {

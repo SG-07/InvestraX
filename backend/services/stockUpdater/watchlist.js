@@ -1,4 +1,4 @@
-const Watchlist = require("../../Models/WatchlistModel");
+const Watchlist = require("../../models/watchlistmodel");
 const { updateBatch } = require("./batch");
 const { uniq } = require("../../utils/helper");
 

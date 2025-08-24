@@ -1,4 +1,4 @@
-const Orders = require("../Models/OrdersModel");
+const Orders = require("../models/ordersmodel");
 
 exports.list = async (req, res) => {
   const userId = req.user._id;

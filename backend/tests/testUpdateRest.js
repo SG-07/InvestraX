@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
-const updateRest = require("../services/stockUpdater/updateRest");
+const updateRest = require("../services/stockupdater/updaterest");
 
 (async () => {
   try {

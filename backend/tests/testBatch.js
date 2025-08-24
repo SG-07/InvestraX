@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
-const { updateBatch } = require("../services/stockUpdater/batch");
+const { updateBatch } = require("../services/stockupdater/batch");
 
 (async () => {
   try {

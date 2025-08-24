@@ -1,4 +1,4 @@
-const Stocks = require("../../Models/StocksModel");
+const Stocks = require("../../models/stocksmodel");
 const yahooFinance = require("../yahoo");
 const { uniq, diff } = require("../../utils/helper");
 

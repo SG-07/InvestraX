@@ -1,4 +1,4 @@
-const User = require("../Models/UserModel");
+const User = require("../models/usermodel");
 
 // BUY stock
 exports.buyStock = async (req, res) => {

@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
-const { updateWatchlistSymbols } = require("../services/stockUpdater/watchlist");
+const { updateWatchlistSymbols } = require("../services/stockupdater/watchlist");
 
 (async () => {
   try {

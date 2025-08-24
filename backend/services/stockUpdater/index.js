@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 const { updateHoldingsSymbols } = require("./holdings");
 const { updateWatchlistSymbols } = require("./watchlist");
 const { updateAllStocks } = require("./allStocks");
-const PositionsModel = require("../../Models/PositionsModel");
-const WatchlistModel = require("../../Models/WatchlistModel");
+const PositionsModel = require("../../models/positionsmodel");
+const WatchlistModel = require("../../models/watchlistmodel");
 
 async function startStockUpdater() {
   console.log("🚀 Stock updater running...");

@@ -1,4 +1,4 @@
-const Stocks = require("../../Models/StocksModel");
+const Stocks = require("../../models/stocksmodel");
 const { fetchQuotes } = require("../yahoo");
 
 async function updateBatch(symbols) {

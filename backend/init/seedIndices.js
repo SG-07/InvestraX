@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config({ path: "./config/.env" });
-const StocksModel = require("../Models/StocksModel");
+const StocksModel = require("../models/stocksmodel");
 
 const indices = [
   { symbol: "^NSEI", name: "NIFTY 50", category: "Index" },

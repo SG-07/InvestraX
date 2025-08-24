@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./config/.env" });
 const mongoose = require("mongoose");
-const PositionsModel = require("../Models/PositionsModel");
+const PositionsModel = require("../models/positionsmodel");
 
 async function seedHoldings() {
   try {

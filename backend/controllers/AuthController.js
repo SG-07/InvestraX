@@ -1,5 +1,5 @@
-const User = require("../Models/UserModel");   
-const { createSecretToken } = require("../utils/SecretToken");
+const User = require("../models/usermodel");   
+const { createSecretToken } = require("../utils/secrettoken");
 
 // ----------------- SIGNUP -----------------
 module.exports.Signup = async (req, res) => {

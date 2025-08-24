@@ -1,4 +1,4 @@
-const Holdings = require("../../Models/HoldingsModel");
+const Holdings = require("../../models/holdingsmodel");
 const { updateBatch } = require("./batch");
 const { uniq } = require("../../utils/helper");
 
