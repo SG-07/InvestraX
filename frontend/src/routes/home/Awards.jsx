@@ -1,5 +1,3 @@
-
-
 function Awards() {
     return (
         <div className="max-w-7xl mx-auto px-10 mt-16 mb-20">

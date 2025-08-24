@@ -33,7 +33,7 @@ function CreateTicket() {
           </Card>
 
           {/* Column 2 */}
-          <Card title="Your Zerodha Account" icon={<UserCircleIcon className="w-6 h-6 text-gray-700" />}>
+          <Card title="Your InvestraX Account" icon={<UserCircleIcon className="w-6 h-6 text-gray-700" />}>
             <Link to="/underconstruction" className={linkStyle}>Your Profile</Link>
             <Link to="/underconstruction" className={linkStyle}>Account modification</Link>
             <Link to="/underconstruction" className={linkStyle}>Client Master Report (CMR) and DP</Link>

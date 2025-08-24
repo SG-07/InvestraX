@@ -61,6 +61,10 @@ process.on("SIGINT", async () => {
   }
 });
 
+// Health check route
+app.get("/health", (req, res) => {
+  res.json({ ok: true, service: "backend", timestamp: Date.now() });
+});
 /* ----------------------------- Routes ----------------------------- */
 app.use("/auth", authRoutes);
 app.use("/api/users", userRoutes);
