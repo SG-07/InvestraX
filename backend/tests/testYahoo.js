@@ -1,12 +1,13 @@
-const yahooFinance = require("yahoo-finance2").default;
+const { fetchQuotes, fetchQuote } = require("../services/yahoo");
 
-async function test() {
-  try {
-    const quote = await yahooFinance.quote("RELIANCE.NS");
-    console.log("✅ RELIANCE:", quote.regularMarketPrice, quote.currency);
-  } catch (err) {
-    console.error("❌ Error:", err);
-  }
-}
+(async () => {
+  console.log("🔎 Testing single fetch for RELIANCE.NS");
+  const quote = await fetchQuote("RELIANCE.NS");
+  console.log("Result:", quote?.regularMarketPrice);
 
-test();
+  console.log("\n🔎 Testing batch fetch for [TCS.NS, INFY.NS]");
+  const quotes = await fetchQuotes(["TCS.NS", "INFY.NS"]);
+  quotes.forEach((q) => {
+    console.log(`→ ${q.symbol}: ₹${q.regularMarketPrice}`);
+  });
+})();
