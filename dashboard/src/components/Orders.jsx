@@ -1,23 +1,57 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useGeneralContext } from "./GeneralContext";
+import { getTransactions } from "../services/api";
 
 const Orders = () => {
-  return (
-    <div className="w-full h-[90vh]">
-      <div className="flex flex-col items-center justify-center h-full">
-        <p className="mt-[6%] text-gray-400 text-base font-light">
-          You haven't placed any orders today
-        </p>
+  const { transactions, setTransactions } = useGeneralContext();
 
-        <Link
-          to={"/"}
-          className="mt-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-sm no-underline"
-        >
-          Get started
-        </Link>
-      </div>
+  useEffect(() => {
+    const fetchTxns = async () => {
+      try {
+        const res = await getTransactions();
+        setTransactions(res.data.transactions || []);
+      } catch (err) {
+        console.error("❌ Error fetching transactions:", err);
+      }
+    };
+    fetchTxns();
+  }, [setTransactions]);
+
+  return (
+    <div className="p-4">
+      <h2 className="text-lg font-bold mb-3">Transaction History</h2>
+      {transactions.length === 0 ? (
+        <p>No transactions yet</p>
+      ) : (
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2">Date</th>
+              <th className="border p-2">Type</th>
+              <th className="border p-2">Symbol</th>
+              <th className="border p-2">Qty</th>
+              <th className="border p-2">Price</th>
+              <th className="border p-2">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((txn, i) => (
+              <tr key={i}>
+                <td className="border p-2">
+                  {new Date(txn.date).toLocaleString()}
+                </td>
+                <td className="border p-2">{txn.type}</td>
+                <td className="border p-2">{txn.symbol || "-"}</td>
+                <td className="border p-2">{txn.qty || 0}</td>
+                <td className="border p-2">₹{txn.price || 0}</td>
+                <td className="border p-2">₹{txn.amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
 
 export default Orders;
-

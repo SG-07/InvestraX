@@ -1,6 +1,7 @@
-const User = require("../Models/UserModel");
+const User = require("../Models/UserModel");   
 const { createSecretToken } = require("../utils/SecretToken");
 
+// ----------------- SIGNUP -----------------
 module.exports.Signup = async (req, res) => {
   try {
     const { email, password, username } = req.body;
@@ -22,7 +23,12 @@ module.exports.Signup = async (req, res) => {
     res.status(201).json({
       message: "User registered successfully",
       success: true,
-      user: { username: user.username, email: user.email },
+      user: {
+        username: user.username,
+        email: user.email,
+        balance: user.balance,       // 🆕 include balance
+        holdings: user.holdings,     // 🆕 include holdings
+      },
     });
   } catch (err) {
     console.error("❌ Signup error:", err);
@@ -30,6 +36,7 @@ module.exports.Signup = async (req, res) => {
   }
 };
 
+// ----------------- LOGIN -----------------
 module.exports.Login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -51,7 +58,12 @@ module.exports.Login = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       success: true,
-      user: { username: user.username, email: user.email },
+      user: {
+        username: user.username,
+        email: user.email,
+        balance: user.balance,       // 🆕 include balance
+        holdings: user.holdings,     // 🆕 include holdings
+      },
     });
   } catch (err) {
     console.error("❌ Login error:", err);
@@ -59,12 +71,23 @@ module.exports.Login = async (req, res) => {
   }
 };
 
+// ----------------- LOGOUT -----------------
 module.exports.Logout = (_req, res) => {
   res.clearCookie("token", { httpOnly: true, sameSite: "None", secure: true });
   res.json({ success: true, message: "Logged out" });
 };
 
+// ----------------- VERIFY -----------------
 module.exports.Verify = (req, res) => {
-  // Reaches here only if userVerification passed
-  res.json({ status: true, user: { id: req.user._id, email: req.user.email, username: req.user.username }});
+  // Reaches here only if userVerification middleware passed
+  res.json({
+    status: true,
+    user: {
+      id: req.user._id,
+      email: req.user.email,
+      username: req.user.username,
+      balance: req.user.balance,   // 🆕 include balance
+      holdings: req.user.holdings, // 🆕 include holdings
+    },
+  });
 };
