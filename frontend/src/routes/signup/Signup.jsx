@@ -1,22 +1,21 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
-  const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState({ email: "", username: "", password: "" });
-  const { email, username, password } = inputValue;
+  const [inputValue, setInputValue] = useState({ email: "", password: "", username: "" });
   const [loading, setLoading] = useState(false);
+  const { email, password, username } = inputValue;
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({ ...inputValue, [name]: value });
   };
 
-  const handleError = (msg) => toast.error(msg, { position: "bottom-left" });
-  const handleSuccess = (msg) => toast.success(msg, { position: "bottom-left" });
+  const notifyError = (msg) => toast.error(msg, { position: "bottom-left" });
+  const notifySuccess = (msg) => toast.success(msg, { position: "bottom-left" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,45 +27,48 @@ const Signup = () => {
         { withCredentials: true }
       );
 
-      const { success, message } = data;
-      if (success) {
-        handleSuccess(message);
-        setTimeout(() => navigate("/dashboard"), 1500);
+      if (data.success) {
+        notifySuccess(data.message);
+        setTimeout(() => {
+          window.location.replace(import.meta.env.VITE_DASHBOARD_URL);
+        }, 1500);
       } else {
-        handleError(message);
+        notifyError(data.message);
       }
-    } catch (error) {
-      const errMsg =
-        error?.response?.data?.message || "Something went wrong. Try again.";
-      handleError(errMsg);
+    } catch (err) {
+      console.error(err);
+      if (err.response?.data?.message) notifyError(err.response.data.message);
+      else notifyError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
-      setInputValue({ email: "", username: "", password: "" });
+      setInputValue({ email: "", password: "", username: "" });
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#020024] via-[#8fbbcc] to-[#00d4ff] font-sans">
-      <div className="bg-white p-8 md:p-12 rounded-xl w-full max-w-md shadow-2xl">
-        <h2 className="text-2xl text-[#00d4ff] font-bold mb-6 text-center">Sign Up</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <input
-            type="text"
-            name="username"
-            value={username}
-            placeholder="Username"
-            onChange={handleOnChange}
-            className="border-b border-gray-400 p-2 outline-none placeholder:italic focus:border-[#00d4ff]"
-            required
-          />
+      <div className="bg-white p-8 md:p-12 rounded-lg w-full max-w-md shadow-xl">
+        <h2 className="text-[#00d4ff] text-2xl font-semibold mb-6 text-center">
+          Signup
+        </h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <input
             type="email"
             name="email"
             value={email}
             placeholder="Email"
             onChange={handleOnChange}
-            className="border-b border-gray-400 p-2 outline-none placeholder:italic focus:border-[#00d4ff]"
             required
+            className="border-b border-gray-400 p-2 outline-none placeholder:italic"
+          />
+          <input
+            type="text"
+            name="username"
+            value={username}
+            placeholder="Username"
+            onChange={handleOnChange}
+            required
+            className="border-b border-gray-400 p-2 outline-none placeholder:italic"
           />
           <input
             type="password"
@@ -74,23 +76,23 @@ const Signup = () => {
             value={password}
             placeholder="Password"
             onChange={handleOnChange}
-            className="border-b border-gray-400 p-2 outline-none placeholder:italic focus:border-[#00d4ff]"
             required
+            className="border-b border-gray-400 p-2 outline-none placeholder:italic"
           />
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#00d4ff] text-white py-2 rounded-md hover:opacity-90 disabled:opacity-50 transition"
+            className="bg-[#00d4ff] text-white py-2 text-lg rounded-md hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Signing up..." : "Sign Up"}
+            {loading ? "Signing up..." : "Signup"}
           </button>
+          <span className="text-sm text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[#00d4ff] underline">
+              Login
+            </Link>
+          </span>
         </form>
-        <p className="text-center text-sm mt-4">
-          Already have an account?{" "}
-          <Link to="/login" className="text-[#00d4ff] underline">
-            Login
-          </Link>
-        </p>
         <ToastContainer />
       </div>
     </div>
