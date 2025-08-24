@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const ctrl = require("../Controllers/StocksController");
+const ctrl = require("../controllers/StocksController");
 
 router.get("/", ctrl.list);
 router.get("/categories", ctrl.categories);

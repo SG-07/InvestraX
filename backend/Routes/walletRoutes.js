@@ -1,5 +1,5 @@
 const express = require("express");
-const { getWallet, resetWallet, getTransactions } = require("../Controllers/walletController");
+const { getWallet, resetWallet, getTransactions } = require("../controllers/walletController");
 const { isLoggedIn } = require("../Middleware/AuthMiddleware");
 
 const router = express.Router();
