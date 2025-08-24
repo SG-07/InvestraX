@@ -8,11 +8,15 @@ const WatchlistModel = require("../../Models/WatchlistModel");
 async function startStockUpdater() {
   console.log("🚀 Stock updater running...");
 
+  // Initial full refresh on boot
+  console.log("⏳ Running initial full stock update...");
+  await updateAllStocks();
+
   // update holdings every 30s
   setInterval(updateHoldingsSymbols, 30 * 1000);
 
-  // update watchlist every 60s
-  setInterval(updateWatchlistSymbols, 60 * 1000);
+  // update watchlist every 20s
+  setInterval(updateWatchlistSymbols, 20 * 1000);
 
   // update all stocks every 5 min if user has nothing in holdings/watchlist
   setInterval(async () => {
