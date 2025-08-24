@@ -18,7 +18,7 @@ const positionsRoutes = require("./Routes/PositionsRoutes");
 const watchlistRoutes = require("./Routes/WatchlistRoutes");
 const ordersRoutes = require("./Routes/OrdersRoutes");
 const portfolioRoutes = require("./Routes/PortfolioRoutes");
-const tradeRoutes = require("./Routes/Trade");
+const tradeRoutes = require("./Routes/TradeRoutes");
 const walletRoutes = require("./Routes/walletRoutes");
 
 const app = express();

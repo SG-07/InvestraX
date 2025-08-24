@@ -3,7 +3,7 @@ const User = require("../Models/UserModel");
 // BUY stock
 exports.buyStock = async (req, res) => {
   try {
-    const { symbol, qty, price } = req.body;
+    const { symbol, name, qty, price } = req.body;
     const user = await User.findById(req.user._id);
 
     const cost = qty * price;
@@ -11,23 +11,24 @@ exports.buyStock = async (req, res) => {
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
-    // Deduct balance & update holdings
-    user.balance -= cost;
+    // Update holdings
     let holding = user.holdings.find(h => h.symbol === symbol);
     if (holding) {
       holding.avg = (holding.avg * holding.qty + cost) / (holding.qty + qty);
       holding.qty += qty;
     } else {
-      user.holdings.push({ symbol, qty, avg: price });
+      user.holdings.push({ symbol, name, qty, avg: price });
     }
 
-    // 💾 Add transaction log
+    user.balance -= cost;
+
+    // Transaction log
     user.transactions.push({
       type: "BUY",
       symbol,
       qty,
       price,
-      amount: cost
+      amount: cost,
     });
 
     await user.save();
@@ -51,19 +52,20 @@ exports.sellStock = async (req, res) => {
 
     const proceeds = qty * price;
     holding.qty -= qty;
+
     if (holding.qty === 0) {
       user.holdings = user.holdings.filter(h => h.symbol !== symbol);
     }
 
     user.balance += proceeds;
 
-    // 💾 Add transaction log
+    // Transaction log
     user.transactions.push({
       type: "SELL",
       symbol,
       qty,
       price,
-      amount: proceeds
+      amount: proceeds,
     });
 
     await user.save();
@@ -77,8 +79,7 @@ exports.sellStock = async (req, res) => {
 // RESET account
 exports.resetAccount = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const user = await User.findById(userId);
+    const user = await User.findById(req.user._id);
 
     user.balance = 200000;
     user.holdings = [];
@@ -88,6 +89,21 @@ exports.resetAccount = async (req, res) => {
     res.json({ success: true, balance: user.balance, holdings: user.holdings });
   } catch (err) {
     console.error("❌ Reset error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// WALLET info
+exports.getWallet = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.json({
+      balance: user.balance,
+      holdings: user.holdings,
+      transactions: user.transactions,
+    });
+  } catch (err) {
+    console.error("❌ Wallet error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
