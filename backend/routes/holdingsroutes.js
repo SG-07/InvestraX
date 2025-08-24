@@ -1,8 +1,8 @@
 const router = require("express").Router();
-const { userVerification } = require("../middleware/authmiddleware");
+const { isLoggedIn } = require("../middleware/authmiddleware");
 const ctrl = require("../controllers/holdingcontroller");
 
-router.get("/", userVerification, ctrl.list);
-router.post("/", userVerification, ctrl.create);
+router.get("/", isLoggedIn, ctrl.list);
+router.post("/", isLoggedIn, ctrl.create);
 
 module.exports = router;

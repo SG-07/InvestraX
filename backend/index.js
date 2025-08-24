@@ -99,7 +99,7 @@ app.get("/", (req, res) => {
 });
 
 /* --------------------- Catch-all for 404 --------------------- */
-app.all("*", (req, res) => {
+app.use((req, res) => {
   if (req.headers.accept && req.headers.accept.includes("text/html")) {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
   } else {

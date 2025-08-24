@@ -5,11 +5,11 @@ const {
   Logout,
   Verify,
 } = require("../controllers/authcontroller");
-const { userVerification } = require("../middleware/authmiddleware");
+const { isLoggedIn } = require("../middleware/authmiddleware");
 
 router.post("/signup", Signup);
 router.post("/login", Login);
 router.get("/logout", Logout);
-router.get("/verify", userVerification, Verify);
+router.get("/verify", isLoggedIn, Verify);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const Stocks = require("../../models/stocksmodel");
-const yahooFinance = require("../yahoo");
+const { fetchQuotes } = require("../yahoo");
 const { uniq, diff } = require("../../utils/helper");
 
 const STALE_MS = 60 * 1000; // 1 minute
@@ -23,8 +23,8 @@ async function updateAllStocks() {
     const staleStocks = await Stocks.find({
       $or: [
         { updatedAt: { $lt: cutoff } },
-        { updatedAt: { $exists: false } }
-      ]
+        { updatedAt: { $exists: false } },
+      ],
     }).select("symbol");
 
     if (!staleStocks.length) {
@@ -37,10 +37,17 @@ async function updateAllStocks() {
 
     for (let i = 0; i < batches.length; i++) {
       console.log(`📡 Updating batch ${i + 1}/${batches.length}...`);
-      const quotes = await yahooFinance.quote(batches[i]);
 
+      const quotes = await fetchQuotes(batches[i]);
       const list = Array.isArray(quotes) ? quotes : [quotes];
+
+      // Symbols that successfully came back from Yahoo
+      const returnedSymbols = list.filter(Boolean).map((q) => q.symbol);
+      // Find which symbols failed
+      const failedSymbols = diff(batches[i], returnedSymbols);
+
       for (const q of list) {
+        if (!q) continue; // skip null
         await Stocks.updateOne(
           { symbol: q.symbol },
           {
@@ -49,6 +56,10 @@ async function updateAllStocks() {
           }
         );
         console.log(`✅ Updated ${q.symbol}: ₹${q.regularMarketPrice}`);
+      }
+
+      if (failedSymbols.length) {
+        console.warn(`⚠️ Failed to fetch: ${failedSymbols.join(", ")}`);
       }
     }
 
