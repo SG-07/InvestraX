@@ -6,20 +6,20 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const path = require("path");
-const { startStockUpdater } = require("./services/stockUpdater");
-const { isLoggedIn } = require("./Middleware/AuthMiddleware");
+const { startStockUpdater } = require("./services/stockupdater");
+const { isLoggedIn } = require("./middleware/authmiddleware");
 
 // Routes
-const authRoutes = require("./Routes/AuthRoutes");
-const userRoutes = require("./Routes/UsersRoutes");
-const stocksRoutes = require("./Routes/StocksRoutes");
-const holdingsRoutes = require("./Routes/HoldingsRoutes");
-const positionsRoutes = require("./Routes/PositionsRoutes");
-const watchlistRoutes = require("./Routes/WatchlistRoutes");
-const ordersRoutes = require("./Routes/OrdersRoutes");
-const portfolioRoutes = require("./Routes/PortfolioRoutes");
-const tradeRoutes = require("./Routes/TradeRoutes");
-const walletRoutes = require("./Routes/walletRoutes");
+const authRoutes = require("./routes/authroutes");
+const userRoutes = require("./routes/usersroutes");
+const stocksRoutes = require("./routes/stocksroutes");
+const holdingsRoutes = require("./routes/holdingsroutes");
+const positionsRoutes = require("./routes/positionsroutes");
+const watchlistRoutes = require("./routes/watchlistroutes");
+const ordersRoutes = require("./routes/ordersroutes");
+const portfolioRoutes = require("./routes/portfolioroutes");
+const tradeRoutes = require("./routes/traderoutes");
+const walletRoutes = require("./routes/walletroutes");
 
 const app = express();
 const port = process.env.PORT || 8080;
