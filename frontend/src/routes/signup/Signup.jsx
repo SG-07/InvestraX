@@ -1,72 +1,100 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-function Signup() {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+const Signup = () => {
   const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState({ email: "", username: "", password: "" });
+  const { email, username, password } = inputValue;
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = async (e) => {
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+    setInputValue({ ...inputValue, [name]: value });
+  };
+
+  const handleError = (msg) => toast.error(msg, { position: "bottom-left" });
+  const handleSuccess = (msg) => toast.success(msg, { position: "bottom-left" });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
+    setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, username, password }),
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/signup`,
+        inputValue,
+        { withCredentials: true }
+      );
 
-      if (res.status === 502 || res.status === 503) {
-        // backend cold or unavailable
-        return navigate("/boot");
+      const { success, message } = data;
+      if (success) {
+        handleSuccess(message);
+        setTimeout(() => navigate("/dashboard"), 1500);
+      } else {
+        handleError(message);
       }
-
-      if (!res.ok) {
-        const data = await res.json();
-        return setError(data.message || "Signup failed");
-      }
-
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("❌ Signup error:", err);
-      navigate("/boot"); 
+    } catch (error) {
+      const errMsg =
+        error?.response?.data?.message || "Something went wrong. Try again.";
+      handleError(errMsg);
+    } finally {
+      setLoading(false);
+      setInputValue({ email: "", username: "", password: "" });
     }
   };
 
   return (
-    <div className="auth-page">
-      <h2>Signup</h2>
-      <form onSubmit={handleSignup}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p className="error">{error}</p>}
-        <button type="submit">Signup</button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#020024] via-[#8fbbcc] to-[#00d4ff] font-sans">
+      <div className="bg-white p-8 md:p-12 rounded-xl w-full max-w-md shadow-2xl">
+        <h2 className="text-2xl text-[#00d4ff] font-bold mb-6 text-center">Sign Up</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <input
+            type="text"
+            name="username"
+            value={username}
+            placeholder="Username"
+            onChange={handleOnChange}
+            className="border-b border-gray-400 p-2 outline-none placeholder:italic focus:border-[#00d4ff]"
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            value={email}
+            placeholder="Email"
+            onChange={handleOnChange}
+            className="border-b border-gray-400 p-2 outline-none placeholder:italic focus:border-[#00d4ff]"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            value={password}
+            placeholder="Password"
+            onChange={handleOnChange}
+            className="border-b border-gray-400 p-2 outline-none placeholder:italic focus:border-[#00d4ff]"
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-[#00d4ff] text-white py-2 rounded-md hover:opacity-90 disabled:opacity-50 transition"
+          >
+            {loading ? "Signing up..." : "Sign Up"}
+          </button>
+        </form>
+        <p className="text-center text-sm mt-4">
+          Already have an account?{" "}
+          <Link to="/login" className="text-[#00d4ff] underline">
+            Login
+          </Link>
+        </p>
+        <ToastContainer />
+      </div>
     </div>
   );
-}
+};
 
 export default Signup;
