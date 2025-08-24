@@ -3,33 +3,31 @@ require("dotenv").config({ path: "./config/.env" });
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
-// Models
-const HoldingsModel = require("./Models/HoldingsModel");
-const PositionsModel = require("./Models/PositionsModel");
-const OrdersModel = require("./Models/OrdersModel");
+const { startStockUpdater } = require("./services/stockUpdater");
 
 // Routes
 const authRoutes = require("./Routes/AuthRoutes");
-const stockRoutes = require("./Routes/StocksRoute");
-
-// Services
-const { startStockUpdater } = require("./services/stockUpdater");
+const userRoutes = require("./Routes/UsersRoutes");
+const stocksRoutes = require("./Routes/StocksRoutes");
+const holdingsRoutes = require("./Routes/HoldingsRoutes");
+const positionsRoutes = require("./Routes/PositionsRoutes");
+const watchlistRoutes = require("./Routes/WatchlistRoutes");
+const ordersRoutes = require("./Routes/OrdersRoutes");
+const portfolioRoutes = require("./Routes/PortfolioRoutes");
 
 const app = express();
 const port = process.env.PORT || 8080;
 
-console.log("✅ Backend starting...");
-
-/* ----------------------------- CORS SETUP ----------------------------- */
+/* ----------------------------- CORS ----------------------------- */
+const allowed = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
 const corsOptions = {
-  origin: [
-    "http://localhost:3000", // local dev
-    "https://investrax-frontend.onrender.com",
-    "https://investrax-dashboard.onrender.com"
-  ],
+  origin: function (origin, cb) {
+    if (!origin || allowed.includes(origin)) return cb(null, true);
+    cb(new Error("Not allowed by CORS"));
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -37,69 +35,47 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 
-/* ----------------------------- MIDDLEWARE ----------------------------- */
+/* --------------------------- Middleware --------------------------- */
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 
-/* ---------------------------- DATABASE SETUP ---------------------------- */
+/* --------------------------- MongoDB --------------------------- */
 mongoose
-  .connect(process.env.MONGO_URL, {
-    serverSelectionTimeoutMS: 30000,
-    socketTimeoutMS: 45000,
-  })
-  .then(() =>
-    console.log(`✅ Connected to MongoDB: ${mongoose.connection.name}`)
-  )
+  .connect(process.env.MONGO_URL, { serverSelectionTimeoutMS: 30000, socketTimeoutMS: 45000 })
+  .then(() => console.log(`✅ Mongo connected: ${mongoose.connection.name}`))
   .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+    console.error("❌ Mongo error:", err);
     process.exit(1);
   });
 
 process.on("SIGINT", async () => {
   try {
     await mongoose.connection.close();
-    console.log("🛑 MongoDB connection closed.");
+    console.log("🛑 Mongo connection closed");
     process.exit(0);
   } catch (err) {
-    console.error("Error closing MongoDB connection:", err);
+    console.error("Close error:", err);
     process.exit(1);
   }
 });
 
-/* ------------------------------- ROUTES ------------------------------- */
-console.log("✅ Registering /auth routes...");
+/* ----------------------------- Routes ----------------------------- */
 app.use("/auth", authRoutes);
-// Register routes
-app.use("/stocks", stockRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/stocks", stocksRoutes);
+app.use("/api/holdings", holdingsRoutes);
+app.use("/api/positions", positionsRoutes);
+app.use("/api/watchlist", watchlistRoutes);
+app.use("/api/orders", ordersRoutes);
+app.use("/api/portfolio", portfolioRoutes);
 
-app.get("/allHoldings", async (req, res) => {
-  const allHoldings = await HoldingsModel.find({});
-  res.json(allHoldings);
-});
+app.get("/", (_req, res) => res.json({ ok: true, service: "InvestraX API" }));
 
-app.get("/allPositions", async (req, res) => {
-  const allPositions = await PositionsModel.find({});
-  res.json(allPositions);
-});
-
-app.post("/newOrder", async (req, res) => {
-  const { name, qty, price, mode } = req.body;
-  const newOrder = new OrdersModel({ name, qty, price, mode });
-  await newOrder.save();
-  res.send("✅ Order saved!");
-});
-
-// ✅ API route for frontend to get all stocks from DB
-const StocksModel = require("./Models/StocksModel");
-app.get("/stocks", async (req, res) => {
-  const stocks = await StocksModel.find({});
-  res.json(stocks);
-});
-
-/* --------------------------- START SERVER --------------------------- */
+/* --------------------------- Start --------------------------- */
 app.listen(port, () => {
-  console.log(`🚀 Server running on port: ${port}`);
-  startStockUpdater(); // Start Yahoo Finance price updater
+  console.log(`🚀 Server listening on :${port}`);
+  startStockUpdater();
 });
+
