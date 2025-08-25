@@ -10,6 +10,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const { startStockUpdater } = require("./services/stockupdater");
 const { isLoggedIn } = require("./middleware/authmiddleware");
+const wakeDashboard = require("./services/wakeDashboard");
 
 // Routes
 const authRoutes = require("./routes/authroutes");
@@ -117,4 +118,7 @@ app.use((req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server listening on :${port}`);
   startStockUpdater();
+
+  // Wake up dashboard after a short delay
+  setTimeout(() => wakeDashboard(), 1000);
 });
