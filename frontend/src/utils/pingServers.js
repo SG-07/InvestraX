@@ -8,11 +8,3 @@ export async function pingBackend() {
     console.warn("⚠️ Failed to ping:", url);
   }
 }
-
-export function pingDashboard() {
-  // Use an <img> to bypass CORS
-  const img = new Image();
-  img.src = import.meta.env.VITE_DASHBOARD_URL + "/";
-  img.onload = () => console.log("✅ Dashboard pinged successfully");
-  img.onerror = () => console.warn("⚠️ Dashboard ping failed");
-}
