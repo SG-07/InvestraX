@@ -1,40 +1,46 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useGeneralContext } from "./GeneralContext";
 
 const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const { user, setUser } = useGeneralContext();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("⏳ ProtectedRoute mounted. Checking authentication...");
-    console.log("🌍 API URL from env:", import.meta.env.VITE_API_URL);
-
     const verifyUser = async () => {
       try {
-        console.log("🔐 Sending verify request to:", `${import.meta.env.VITE_API_URL}/auth/verify`);
+        console.log("⏳ ProtectedRoute: Verifying user...");
         const { data } = await axios.get(
           `${import.meta.env.VITE_API_URL}/auth/verify`,
           { withCredentials: true }
         );
 
-        console.log("✅ Verify request successful. Response:", data);
-        setIsAuthenticated(data.status); // ✅ FIXED to match backend key
-      } catch (error) {
-        console.error("❌ Verification failed:", error);
-        setIsAuthenticated(false);
+        console.log("✅ Verify successful:", data);
+
+        if (data.status) {
+          setUser(data.user); // save user in context
+        } else {
+          window.location.href = import.meta.env.VITE_FRONTEND_URL; // redirect to login
+        }
+      } catch (err) {
+        console.error("❌ Verification failed:", err);
+        window.location.href = import.meta.env.VITE_FRONTEND_URL;
+      } finally {
+        setLoading(false);
       }
     };
 
-    verifyUser();
-  }, []);
+    // Only verify if user is not already in context
+    if (!user) verifyUser();
+    else setLoading(false);
+  }, [user, setUser]);
 
-  if (isAuthenticated === null) {
-    return <div className="text-center mt-10">Loading...</div>;
-  }
-
-  if (!isAuthenticated) {
-    console.log("⛔ Not authenticated. Redirecting to:", import.meta.env.VITE_FRONTEND_URL);
-    window.location.href = import.meta.env.VITE_FRONTEND_URL;
-    return null;
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-xl text-gray-600">
+        Loading...
+      </div>
+    );
   }
 
   return children;

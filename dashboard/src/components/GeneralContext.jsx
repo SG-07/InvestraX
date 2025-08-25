@@ -1,14 +1,9 @@
 import { createContext, useContext, useState } from "react";
 
-// Create Context
 const GeneralContext = createContext(null);
 
-// Provider Component
 export const GeneralContextProvider = ({ children }) => {
-  // State for logged-in user
   const [user, setUser] = useState(null);
-
-  // Dashboard data
   const [holdings, setHoldings] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [portfolio, setPortfolio] = useState([]);
@@ -31,7 +26,6 @@ export const GeneralContextProvider = ({ children }) => {
   );
 };
 
-// Hook for easy access
 export const useGeneralContext = () => {
   const ctx = useContext(GeneralContext);
   if (!ctx) {
