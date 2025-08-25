@@ -28,11 +28,11 @@ export const buyStock = (payload) => API.post("/api/buy", payload);
 export const sellStock = (payload) => API.post("/api/sell", payload);
 
 /* ---------------- PORTFOLIO ---------------- */
-export const getPortfolio = () => API.get("/api/portfolio");
+export const getPortfolio = () => API.get("/api/portfolio/summary");
 
 /* ---------------- WALLET (to add/reset balance) ---------------- */
-export const getWallet = () => API.get("/api/users/wallet");
-export const resetWallet = () => API.post("/api/users/reset");
+export const getWallet = () => API.get("/api/wallet");
+export const resetWallet = () => API.post("/api/wallet/reset");
 export const getTransactions = () => API.get("/api/wallet/transactions");
 
 export default API;
