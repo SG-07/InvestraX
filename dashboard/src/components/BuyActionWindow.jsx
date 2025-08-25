@@ -2,11 +2,13 @@ import { useState } from "react";
 import { buyStock, sellStock } from "../services/api";
 import { useGeneralContext } from "./GeneralContext";
 
-const BuyActionWindow = ({ symbol, price, onClose }) => {
-  const { holdings, setHoldings, wallet, setWallet, transactions, setTransactions } =
-    useGeneralContext();
+const BuyActionWindow = ({ stock, symbol: symbolProp, price: priceProp, onClose }) => {
+  const { setHoldings, setWallet, transactions, setTransactions } = useGeneralContext();
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const symbol = stock?.symbol ?? symbolProp;
+  const price = stock?.price ?? priceProp;
 
   const handleAction = async (type) => {
     setLoading(true);
@@ -14,32 +16,41 @@ const BuyActionWindow = ({ symbol, price, onClose }) => {
       const payload = { symbol, qty, price };
       const res = type === "BUY" ? await buyStock(payload) : await sellStock(payload);
 
-      // ✅ Update context instantly
-      setHoldings(res.data.holdings);
-      setWallet(res.data.wallet);
-      setTransactions([res.data.transaction, ...transactions]);
+      setHoldings(res.data?.holdings || []);
+      if (res.data?.wallet) {
+        setWallet(res.data.wallet.balance ?? res.data.wallet);
+      }
+      if (res.data?.transaction) {
+        setTransactions([res.data.transaction, ...(transactions || [])]);
+      }
 
       console.log(`✅ ${type} successful`, res.data);
-      onClose();
+      onClose?.();
     } catch (err) {
       console.error(`❌ ${type} failed:`, err);
+      alert(err?.response?.data?.message || "Order failed");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!symbol) return null;
+
   return (
-    <div className="p-4 bg-white rounded shadow-md">
-      <h2 className="text-lg font-bold mb-2">{symbol}</h2>
-      <p className="mb-2">Price: ₹{price}</p>
+    <div className="fixed bottom-5 right-5 w-80 p-4 bg-white rounded shadow-lg border">
+      <h2 className="text-lg font-semibold mb-2">{symbol}</h2>
+      <p className="mb-3">Price: ₹{Number(price ?? 0).toLocaleString()}</p>
+
+      <label className="block text-sm mb-1">Quantity</label>
       <input
         type="number"
         min="1"
         value={qty}
-        onChange={(e) => setQty(Number(e.target.value))}
-        className="border p-1 w-full mb-3"
+        onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
+        className="border p-2 w-full mb-4 rounded"
       />
-      <div className="flex gap-2">
+
+      <div className="flex gap-2 justify-end">
         <button
           onClick={() => handleAction("BUY")}
           disabled={loading}
@@ -54,10 +65,7 @@ const BuyActionWindow = ({ symbol, price, onClose }) => {
         >
           Sell
         </button>
-        <button
-          onClick={onClose}
-          className="px-3 py-1 border rounded"
-        >
+        <button onClick={onClose} className="px-3 py-1 border rounded">
           Cancel
         </button>
       </div>
