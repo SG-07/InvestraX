@@ -10,12 +10,14 @@ import ProductPage from "./routes/products/ProductPage";
 import SupportPage from "./routes/support/SupportPage";
 import { Login, Signup } from "./routes/signup/index";
 import { useEffect } from "react";
-import { pingServers } from "./utils/pingServers";
+import { pingServers, pingDashboard } from "./utils/pingServers";
 import Boot from "./pages/Boot"; 
 
 function App() {
   useEffect(() => {
-    pingServers(); // wakes backend + dashboard when landing loads
+    console.log("🌟 Frontend active, waking up servers...");
+    pingBackend(); // wakes backend 
+    pingDashboard();
   }, []);
 
   return (
