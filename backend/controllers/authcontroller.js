@@ -3,16 +3,26 @@ const { createSecretToken } = require("../utils/secrettoken");
 
 // ----------------- SIGNUP -----------------
 module.exports.Signup = async (req, res) => {
+  console.log("🟢 Signup request received:", req.body);
+
   try {
     const { email, password, username } = req.body;
-    if (!email || !password || !username)
+    if (!email || !password || !username) {
+      console.log("🔴 Missing required fields");
       return res.status(400).json({ message: "All fields are required" });
+    }
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.json({ message: "User already exists" });
+    if (existingUser) {
+      console.log("🔴 User already exists:", email);
+      return res.json({ message: "User already exists", success: false });
+    }
 
     const user = await User.create({ email, password, username });
+    console.log("✅ New user created:", user.email);
+
     const token = createSecretToken(user._id);
+    console.log("🔑 Token generated for user:", user.email);
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -26,8 +36,8 @@ module.exports.Signup = async (req, res) => {
       user: {
         username: user.username,
         email: user.email,
-        balance: user.balance,       // 🆕 include balance
-        holdings: user.holdings,     // 🆕 include holdings
+        balance: user.balance,
+        holdings: user.holdings,
       },
     });
   } catch (err) {
@@ -38,17 +48,30 @@ module.exports.Signup = async (req, res) => {
 
 // ----------------- LOGIN -----------------
 module.exports.Login = async (req, res) => {
+  console.log("🟢 Login request received:", req.body);
+
   try {
     const { email, password } = req.body;
-    if (!email || !password)
+    if (!email || !password) {
+      console.log("🔴 Missing required fields");
       return res.status(400).json({ message: "All fields are required" });
+    }
 
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user) {
+      console.log("🔴 User not found:", email);
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      console.log("🔴 Incorrect password for user:", email);
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
     const token = createSecretToken(user._id);
+    console.log("🔑 Token generated for user:", email);
+
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "None",
@@ -61,8 +84,8 @@ module.exports.Login = async (req, res) => {
       user: {
         username: user.username,
         email: user.email,
-        balance: user.balance,       // 🆕 include balance
-        holdings: user.holdings,     // 🆕 include holdings
+        balance: user.balance,
+        holdings: user.holdings,
       },
     });
   } catch (err) {
@@ -73,21 +96,22 @@ module.exports.Login = async (req, res) => {
 
 // ----------------- LOGOUT -----------------
 module.exports.Logout = (_req, res) => {
+  console.log("🟢 Logout request received");
   res.clearCookie("token", { httpOnly: true, sameSite: "None", secure: true });
   res.json({ success: true, message: "Logged out" });
 };
 
 // ----------------- VERIFY -----------------
 module.exports.Verify = (req, res) => {
-  // Reaches here only if userVerification middleware passed
+  console.log("🟢 Verify request received, user:", req.user?.email);
   res.json({
     status: true,
     user: {
       id: req.user._id,
       email: req.user.email,
       username: req.user.username,
-      balance: req.user.balance,   // 🆕 include balance
-      holdings: req.user.holdings, // 🆕 include holdings
+      balance: req.user.balance,
+      holdings: req.user.holdings,
     },
   });
 };

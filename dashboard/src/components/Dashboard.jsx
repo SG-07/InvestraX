@@ -2,17 +2,22 @@ import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import WatchList from "./WatchList";
 import { GeneralContextProvider, useGeneralContext } from "./GeneralContext";
-import { getHoldings, getWallet, getPortfolio } from "../services/api";
+import { getHoldings, getWallet, getPortfolio, verifyUser } from "../services/api";
 
-// This wrapper loads data and updates context
 const DashboardLoader = () => {
-  const { setHoldings, setWallet, setPortfolio } = useGeneralContext();
+  const { setUser, setHoldings, setWallet, setPortfolio } = useGeneralContext();
 
   useEffect(() => {
     console.log("📊 Dashboard mounted, fetching initial data...");
 
     async function fetchData() {
       try {
+        // Verify logged-in user
+        const userRes = await verifyUser();
+        console.log("🟢 Verified user:", userRes.data);
+        setUser(userRes.data.user);
+
+        // Fetch dashboard data
         const [holdingsRes, walletRes, portfolioRes] = await Promise.all([
           getHoldings(),
           getWallet(),
@@ -23,14 +28,18 @@ const DashboardLoader = () => {
         setWallet(walletRes.data);
         setPortfolio(portfolioRes.data);
 
-        console.log("✅ Dashboard data loaded");
+        console.log("✅ Dashboard data loaded", {
+          holdings: holdingsRes.data,
+          wallet: walletRes.data,
+          portfolio: portfolioRes.data,
+        });
       } catch (err) {
         console.error("❌ Error fetching dashboard data:", err);
       }
     }
 
     fetchData();
-  }, [setHoldings, setWallet, setPortfolio]);
+  }, [setUser, setHoldings, setWallet, setPortfolio]);
 
   return (
     <div className="w-full h-[90vh] flex items-center box-border">
@@ -42,12 +51,10 @@ const DashboardLoader = () => {
   );
 };
 
-const Dashboard = () => {
-  return (
-    <GeneralContextProvider>
-      <DashboardLoader />
-    </GeneralContextProvider>
-  );
-};
+const Dashboard = () => (
+  <GeneralContextProvider>
+    <DashboardLoader />
+  </GeneralContextProvider>
+);
 
 export default Dashboard;
