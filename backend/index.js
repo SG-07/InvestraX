@@ -12,7 +12,7 @@ const { startStockUpdater } = require("./services/stockupdater");
 const { isLoggedIn } = require("./middleware/authmiddleware");
 
 // Routes
-const authRoutes = require("./routes/authroute");
+const authRoutes = require("./routes/authroutes");
 const userRoutes = require("./routes/usersroutes");
 const stocksRoutes = require("./routes/stocksroutes");
 const holdingsRoutes = require("./routes/holdingsroutes");
