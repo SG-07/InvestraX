@@ -28,7 +28,12 @@ const app = express();
 const port = process.env.PORT || 8080;
 app.set("trust proxy", 1);
 
-// -------------------- Security & Logging --------------------
+
+// --------------- EJS Setup ---------------------
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// ------------ Security & Logging --------------
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -38,10 +43,17 @@ const allowed = (process.env.ALLOWED_ORIGINS || "")
   .map((s) => s.trim())
   .filter(Boolean);
 
+console.log("✅ Allowed origins:", allowed);
+
 const corsOptions = {
   origin: function (origin, cb) {
-    if (!origin || allowed.includes(origin)) return cb(null, true);
-    cb(new Error("❌ Not allowed by CORS"));
+    console.log("🌍 CORS check for origin:", origin);
+    if (!origin || allowed.includes(origin)) {
+      console.log("✅ Origin allowed:", origin);
+      return cb(null, true);
+    }
+    console.log("❌ Origin blocked:", origin);
+    cb(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -96,17 +108,14 @@ app.use("/api/portfolio", portfolioRoutes);
 app.use("/api", isLoggedIn, tradeRoutes);
 app.use("/api/wallet", walletRoutes);
 
-// -------------------- Serve frontend for production (optional) --------------------
+// -------------------- Root route --------------------
 app.get("/", (req, res) => {
-  if (req.headers.accept && req.headers.accept.includes("text/html")) {
-    res.sendFile(path.join(__dirname, "views", "home.html"));
-  } else {
-    res.json({ ok: true, service: "InvestraX API", docs: "/api" });
-  }
+  res.render("index", { frontendUrl: process.env.FRONTEND_URL });
 });
 
 // -------------------- Catch-all for 404 --------------------
 app.use((req, res) => {
+  console.log("⚠️ 404 Not Found:", req.originalUrl);
   if (req.headers.accept && req.headers.accept.includes("text/html")) {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
   } else {
@@ -117,6 +126,8 @@ app.use((req, res) => {
 // -------------------- Start Server --------------------
 app.listen(port, () => {
   console.log(`🚀 Server listening on :${port}`);
+  console.log("🔑 Dashboard URL (from env):", process.env.DASHBOARD_URL);
+
   startStockUpdater();
 
   // Wake up dashboard after a short delay
