@@ -1,4 +1,3 @@
-
 function OpenAccount() {
     return ( 
         <div className="max-w-3xl mx-auto text-center mt-10">

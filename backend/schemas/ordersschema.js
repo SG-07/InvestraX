@@ -21,4 +21,4 @@ const OrdersSchema = new Schema({
     },
 });
 
-module.exports = { OrdersSchema };
+module.exports = OrdersSchema;
