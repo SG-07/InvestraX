@@ -11,24 +11,19 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         console.log("📊 Dashboard mounted, fetching initial data...");
-
         const [holdingsRes, walletRes, portfolioRes] = await Promise.all([
           getHoldings(),
           getWallet(),
           getPortfolio(),
         ]);
 
-        setHoldings(holdingsRes.data || []);
-
-        const balance =
-          (walletRes.data && (walletRes.data.balance ?? walletRes.data)) ?? 0;
-        setWallet(balance);
-
-        setPortfolio(portfolioRes.data || null);
+        setHoldings(Array.isArray(holdingsRes.data) ? holdingsRes.data : []);
+        setWallet(walletRes.data?.balance ?? 0);
+        setPortfolio(portfolioRes.data ?? {});
 
         console.log("✅ Dashboard data loaded", {
           holdings: holdingsRes.data,
-          wallet: balance,
+          wallet: walletRes.data,
           portfolio: portfolioRes.data,
         });
       } catch (err) {

@@ -6,7 +6,7 @@ export const GeneralContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [holdings, setHoldings] = useState([]);
   const [wallet, setWallet] = useState(0);
-  const [portfolio, setPortfolio] = useState(null);
+  const [portfolio, setPortfolio] = useState({});
   const [transactions, setTransactions] = useState([]);
 
   return (
@@ -26,8 +26,6 @@ export const GeneralContextProvider = ({ children }) => {
 
 export const useGeneralContext = () => {
   const ctx = useContext(GeneralContext);
-  if (!ctx) {
-    throw new Error("useGeneralContext must be used within GeneralContextProvider");
-  }
+  if (!ctx) throw new Error("useGeneralContext must be used within GeneralContextProvider");
   return ctx;
 };

@@ -2,11 +2,12 @@ import { useGeneralContext } from "./GeneralContext";
 
 const Holdings = () => {
   const { holdings } = useGeneralContext();
+  const holdingsArray = Array.isArray(holdings) ? holdings : [];
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">📊 Your Holdings</h2>
-      {(!holdings || holdings.length === 0) ? (
+      {holdingsArray.length === 0 ? (
         <p>No holdings yet</p>
       ) : (
         <table className="w-full border-collapse border border-gray-300">
@@ -18,11 +19,11 @@ const Holdings = () => {
             </tr>
           </thead>
           <tbody>
-            {holdings.map((h, idx) => (
+            {holdingsArray.map((h, idx) => (
               <tr key={idx}>
                 <td className="border p-2">{h.symbol}</td>
                 <td className="border p-2">{h.qty}</td>
-                <td className="border p-2">₹{h.avg}</td>
+                <td className="border p-2">₹{h.avg ?? 0}</td>
               </tr>
             ))}
           </tbody>
