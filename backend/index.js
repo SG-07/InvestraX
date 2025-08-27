@@ -22,7 +22,7 @@ const ordersRoutes = require("./routes/ordersroutes");
 const portfolioRoutes = require("./routes/portfolioroutes");
 const tradeRoutes = require("./routes/traderoutes");
 const walletRoutes = require("./routes/walletroutes");
-const marketRoutes = require("./routes/marketRoutes");
+const marketRoutes = require("./routes/marketroutes");
 
 const app = express();
 const port = process.env.PORT || 8080;
