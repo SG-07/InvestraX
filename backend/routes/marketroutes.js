@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { isLoggedIn } = require("../middleware/authmiddleware");
-const Stock = require("../models/stock"); // Import the Stock model
+const Stock = require("../models/stocksmodel"); 
 
 // GET Sensex data
 router.get("/sensex", isLoggedIn, async (req, res) => {
