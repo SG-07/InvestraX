@@ -1,12 +1,13 @@
-const frontendUrl = "%FRONTEND_URL%"; 
+let countdown = 10;
 
-let countdown = 5;
 function updateCountdown() {
   const countdownEl = document.getElementById("countdown");
-  if (!countdownEl) return;
+  const fallbackLink = document.getElementById("fallback-link");
+  if (!countdownEl || !window.frontendUrl) return;
+
   countdownEl.textContent = countdown;
   if (countdown <= 0) {
-    window.location.href = frontendUrl;
+    window.location.href = window.frontendUrl;
   }
   countdown--;
 }
