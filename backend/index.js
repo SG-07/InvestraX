@@ -11,6 +11,7 @@ const morgan = require("morgan");
 const { startStockUpdater } = require("./services/stockupdater");
 const { isLoggedIn } = require("./middleware/authmiddleware");
 const wakeDashboard = require("./services/wakeDashboard");
+const { startSheetUpdater } = require("./services/updater"); // ✅ Sheet updater
 
 // Routes
 const authRoutes = require("./routes/authroutes");
@@ -27,7 +28,6 @@ const walletRoutes = require("./routes/walletroutes");
 const app = express();
 const port = process.env.PORT || 8080;
 app.set("trust proxy", 1);
-
 
 // --------------- EJS Setup ---------------------
 app.set("view engine", "ejs");
@@ -128,8 +128,21 @@ app.listen(port, () => {
   console.log(`🚀 Server listening on :${port}`);
   console.log("🔑 Dashboard URL (from env):", process.env.DASHBOARD_URL);
 
+  // ✅ Stock updater
   startStockUpdater();
 
-  // Wake up dashboard after a short delay
+  // ✅ Sheet updater (runs only if SHEET_URL is set in env)
+  if (process.env.SHEET_URL) {
+    try {
+      startSheetUpdater();
+      console.log("📊 Google Sheet updater started...");
+    } catch (e) {
+      console.error("❌ sheetUpdater: failed to start:", e.message || e.toString());
+    }
+  } else {
+    console.log("⚠️ No SHEET_URL provided, skipping sheet updater.");
+  }
+
+  // ✅ Wake up dashboard
   setTimeout(() => wakeDashboard(), 1000);
 });
