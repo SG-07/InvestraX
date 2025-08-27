@@ -29,23 +29,16 @@
       color: #38bdf8;
     }
   </style>
-  <script>
-    let countdown = 10;
-    function updateCountdown() {
-      document.getElementById("countdown").textContent = countdown;
-      if (countdown <= 0) {
-        window.location.href = "<%= frontendUrl %>";
-      }
-      countdown--;
-    }
-    setInterval(updateCountdown, 1000);
-    window.onload = updateCountdown;
-  </script>
 </head>
 <body>
   <h1>🚀 InvestraX Backend is now live!</h1>
   <p>The frontend will open automatically in <strong id="countdown">10</strong> seconds...</p>
   <p>If not, <a href="<%= frontendUrl %>">click here to go to the app</a>.</p>
+
+  <!-- Expose frontendUrl for external JS -->
+  <script>
+    const frontendUrl = "<%= frontendUrl %>";
+  </script>
+  <script src="/js/redirect.js"></script>
 </body>
 </html>
-
