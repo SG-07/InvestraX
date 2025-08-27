@@ -1,12 +1,15 @@
-let countdown = 8;
+let countdown = 5;
+
+const redirectData = document.getElementById("redirect-data");
+const frontendUrl = redirectData.dataset.frontendUrl;
 
 function updateCountdown() {
   const countdownEl = document.getElementById("countdown");
-  if (!countdownEl || !window.frontendUrl) return;
+  if (!countdownEl) return;
 
   countdownEl.textContent = countdown;
   if (countdown <= 0) {
-    window.location.href = window.frontendUrl;
+    window.location.href = frontendUrl;
   }
   countdown--;
 }

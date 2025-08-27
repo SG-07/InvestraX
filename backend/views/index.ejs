@@ -25,13 +25,13 @@
 </head>
 <body>
   <h1>🚀 InvestraX Backend is now live!</h1>
-  <p>The frontend will open automatically in <strong id="countdown">8</strong> seconds...</p>
+  <p>The frontend will open automatically in <strong id="countdown">5</strong> seconds...</p>
   <p>If not, <a id="fallback-link" href="<%= frontendUrl %>">click here to go to the app</a></p>
 
-  <!-- Pass the URL safely to external JS -->
-  <script>
-    window.frontendUrl = "<%= frontendUrl %>";
-  </script>
-  <script src="/redirect.js" defer></script>
+  <!-- Store frontend URL in a data attribute -->
+  <div id="redirect-data" data-frontend-url="<%= frontendUrl %>"></div>
+
+  <!-- Include external script -->
+  <script src="/redirect.js"></script>
 </body>
 </html>
