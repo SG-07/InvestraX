@@ -3,17 +3,17 @@ const csv = require("csvtojson");
 const Stock = require("../models/stocksmodel");
 const cron = require("node-cron");
 
-const SHEET_CSV_URL = process.env.SHEET_CSV_URL; 
+const SHEET_CSV_URL = process.env.SHEET_CSV_URL;
 
 async function updateStocksFromSheet() {
   try {
-    const { data } = await axios.get(SHEET_URL);
+    const { data } = await axios.get(SHEET_CSV_URL);
     const rows = await csv().fromString(data);
 
     let count = 0;
     for (let row of rows) {
-      const updated = await Stock.findOneAndUpdate(
-        { symbol: row.attribute }, // your unique identifier
+      await Stock.findOneAndUpdate(
+        { symbol: row.attribute },
         {
           price: Number(row.price) || 0,
           priceopen: Number(row.priceopen) || 0,
@@ -36,7 +36,10 @@ async function updateStocksFromSheet() {
   }
 }
 
-// run every minute
-cron.schedule("* * * * *", updateStocksFromSheet);
+// ⏰ Schedule job wrapper
+function startSheetUpdater() {
+  cron.schedule("* * * * *", updateStocksFromSheet); // every 1 min
+  console.log("⏰ Sheet updater cron scheduled every minute");
+}
 
-module.exports = { updateStocksFromSheet };
+module.exports = { updateStocksFromSheet, startSheetUpdater };

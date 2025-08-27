@@ -8,10 +8,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const helmet = require("helmet");
 const morgan = require("morgan");
-const { startStockUpdater } = require("./services/stockupdater");
 const { isLoggedIn } = require("./middleware/authmiddleware");
-const wakeDashboard = require("./services/wakeDashboard");
-const { startSheetUpdater } = require("./services/updater"); // ✅ Sheet updater
+const { updateStocksFromSheet, startSheetUpdater } = require("./services/updater");
 
 // Routes
 const authRoutes = require("./routes/authroutes");
@@ -129,10 +127,10 @@ app.listen(port, () => {
   console.log("🔑 Dashboard URL (from env):", process.env.DASHBOARD_URL);
 
   // ✅ Stock updater
-  startStockUpdater();
+  updateStocksFromSheet();
 
   // ✅ Sheet updater (runs only if SHEET_URL is set in env)
-  if (process.env.SHEET_URL) {
+  if (process.env.SHEET_CSV_URL) {
     try {
       startSheetUpdater();
       console.log("📊 Google Sheet updater started...");
@@ -143,6 +141,4 @@ app.listen(port, () => {
     console.log("⚠️ No SHEET_URL provided, skipping sheet updater.");
   }
 
-  // ✅ Wake up dashboard
-  setTimeout(() => wakeDashboard(), 1000);
 });
