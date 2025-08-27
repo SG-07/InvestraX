@@ -34,7 +34,7 @@ app.set("views", path.join(__dirname, "views"));
 // ------------ Security & Logging --------------
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 // -------------------- CORS --------------------
 const allowed = (process.env.ALLOWED_ORIGINS || "")

@@ -24,21 +24,22 @@
       font-weight: bold;
     }
     a:hover { text-decoration: underline; }
-    #countdown {
-      font-weight: bold;
-      color: #38bdf8;
-    }
+    #countdown { font-weight: bold; color: #38bdf8; }
   </style>
 </head>
 <body>
   <h1>🚀 InvestraX Backend is now live!</h1>
-  <p>The frontend will open automatically in <strong id="countdown">10</strong> seconds...</p>
-  <p>If not, <a href="<%= frontendUrl %>">click here to go to the app</a>.</p>
 
-  <!-- Expose frontendUrl for external JS -->
-  <script>
-    const frontendUrl = "<%= frontendUrl %>";
-  </script>
-  <script src="/js/redirect.js"></script>
+  <!-- Store frontend URL in data attribute -->
+  <p id="countdown-container" data-frontend-url="<%= frontendUrl %>">
+    The frontend will open automatically in <strong id="countdown">10</strong> seconds...
+  </p>
+
+  <p>
+    If not, <a id="manual-link" href="<%= frontendUrl %>">click here to go to the app</a>.
+  </p>
+
+  <!-- External script -->
+  <script src="/redirect.js" defer></script>
 </body>
 </html>
