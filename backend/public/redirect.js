@@ -1,8 +1,7 @@
-let countdown = 10;
+let countdown = 8;
 
 function updateCountdown() {
   const countdownEl = document.getElementById("countdown");
-  const fallbackLink = document.getElementById("fallback-link");
   if (!countdownEl || !window.frontendUrl) return;
 
   countdownEl.textContent = countdown;
