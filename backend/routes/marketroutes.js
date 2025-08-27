@@ -5,7 +5,7 @@ const Stock = require("../models/stocksmodel");
 // GET Sensex data
 router.get("/sensex", isLoggedIn, async (req, res) => {
   try {
-    const sensexData = await Stock.findOne({ symbol: "SENSEX" });
+    const sensexData = await Stock.findOne({ symbol: "INDEXBOM:SENSEX" });
     if (!sensexData) {
       return res.status(404).json({ message: "Sensex data not found" });
     }
@@ -18,7 +18,7 @@ router.get("/sensex", isLoggedIn, async (req, res) => {
 // GET Nifty data
 router.get("/nifty", isLoggedIn, async (req, res) => {
   try {
-    const niftyData = await Stock.findOne({ symbol: "NIFTY" });
+    const niftyData = await Stock.findOne({ symbol: "INDEXNSE:NIFTY_50" });
     if (!niftyData) {
       return res.status(404).json({ message: "Nifty data not found" });
     }
