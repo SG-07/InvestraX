@@ -9,16 +9,9 @@ import PricingPage from "./routes/pricing/PricingPage";
 import ProductPage from "./routes/products/ProductPage";
 import SupportPage from "./routes/support/SupportPage";
 import { Login, Signup } from "./routes/signup/index";
-import { useEffect } from "react";
-import { pingBackend } from "./utils/pingServers";
-import Boot from "./pages/Boot"; 
+
 
 function App() {
-  useEffect(() => {
-    console.log("🌟 Frontend active, waking up servers...");
-    pingBackend(); // wakes backend 
-  }, []);
-
   return (
     <>
       <ScrollToTop />
@@ -31,7 +24,6 @@ function App() {
           <Route path="support" element={<SupportPage />} />
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
-          <Route path="boot" element={<Boot />} />
           <Route
             path="/dashboard/*"
             element={
