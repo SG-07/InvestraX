@@ -22,6 +22,7 @@ const ordersRoutes = require("./routes/ordersroutes");
 const portfolioRoutes = require("./routes/portfolioroutes");
 const tradeRoutes = require("./routes/traderoutes");
 const walletRoutes = require("./routes/walletroutes");
+const marketRoutes = require("./routes/marketRoutes");
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -106,6 +107,7 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api", isLoggedIn, tradeRoutes);
 app.use("/api/wallet", walletRoutes);
+app.use("/api/market", marketRoutes);
 
 // -------------------- Root route --------------------
 app.get("/", (req, res) => {
