@@ -39,8 +39,8 @@ export const resetWallet = () => API.post("/api/wallet/reset");
 export const getTransactions = () => API.get("/api/wallet/transactions");
 
 /* ---------------- MARKET ---------------- */
-export const getNifty = () => API.get("/api/market/nifty");
-export const getSensex = () => API.get("/api/market/sensex");
+export const getNifty = () => API.get("/api/stocks/market/nifty");
+export const getSensex = () => API.get("/api/stocks/market/sensex");
 
 /* ---------------- POSITIONS ---------------- */
 export const getPositions = () => API.get("/api/positions");
