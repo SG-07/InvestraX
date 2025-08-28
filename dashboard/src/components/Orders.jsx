@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGeneralContext } from "./GeneralContext";
-import { getTransactions } from "../services/api";
+import { WalletAPI } from "../services/api"; // ✅ import the API object
 
 const Orders = () => {
   const { transactions, setTransactions } = useGeneralContext();
@@ -8,7 +8,7 @@ const Orders = () => {
   useEffect(() => {
     const fetchTxns = async () => {
       try {
-        const res = await getTransactions();
+        const res = await WalletAPI.transactions(); // ✅ use the correct method
         setTransactions(res.data.transactions || []);
       } catch (err) {
         console.error("❌ Error fetching transactions:", err);

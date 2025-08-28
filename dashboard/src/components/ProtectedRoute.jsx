@@ -30,8 +30,7 @@ const ProtectedRoute = ({ children }) => {
       }
     };
 
-    // Only verify if user is not already in context
-    if (!user) verifyUser();
+    if (!user) verifyUser(); // only verify if user not in context
     else setLoading(false);
   }, [user, setUser]);
 

@@ -1,28 +1,23 @@
 import { useState } from "react";
-import { buyStock, sellStock } from "../services/api";
+import { TradeAPI } from "../services/api";
 import { useGeneralContext } from "./GeneralContext";
 
-const BuyActionWindow = ({ stock, symbol: symbolProp, price: priceProp, onClose }) => {
+const BuyActionWindow = ({ symbol, price, onClose }) => {
   const { setHoldings, setWallet, transactions, setTransactions } = useGeneralContext();
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
-
-  const symbol = stock?.symbol ?? symbolProp;
-  const price = stock?.price ?? priceProp;
 
   const handleAction = async (type) => {
     setLoading(true);
     try {
       const payload = { symbol, qty, price };
-      const res = type === "BUY" ? await buyStock(payload) : await sellStock(payload);
+      const res = type === "BUY"
+        ? await TradeAPI.buy(payload)
+        : await TradeAPI.sell(payload);
 
       setHoldings(res.data?.holdings || []);
-      if (res.data?.wallet) {
-        setWallet(res.data.wallet.balance ?? res.data.wallet);
-      }
-      if (res.data?.transaction) {
-        setTransactions([res.data.transaction, ...(transactions || [])]);
-      }
+      if (res.data?.wallet) setWallet(res.data.wallet.balance ?? res.data.wallet);
+      if (res.data?.transaction) setTransactions([res.data.transaction, ...(transactions || [])]);
 
       console.log(`✅ ${type} successful`, res.data);
       onClose?.();
@@ -74,3 +69,4 @@ const BuyActionWindow = ({ stock, symbol: symbolProp, price: priceProp, onClose 
 };
 
 export default BuyActionWindow;
+

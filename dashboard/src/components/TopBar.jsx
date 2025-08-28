@@ -1,33 +1,57 @@
 import { useEffect, useState } from "react";
 import Menu from "./Menu";
-import { getNifty, getSensex } from "../services/api";
-import clsx from "clsx"; // make sure to install clsx: npm i clsx
+import { MarketAPI } from "../services/api"; 
+import clsx from "clsx";
 
 const TopBar = () => {
-  const [nifty, setNifty] = useState({ price: null, prevPrice: null, change: 0, highlight: false });
-  const [sensex, setSensex] = useState({ price: null, prevPrice: null, change: 0, highlight: false });
+  const [nifty, setNifty] = useState({
+    price: null,
+    lastNonZeroChange: 0,
+    flash: "text-gray-700",
+    animate: false,
+    arrowFlash: false,
+  });
+
+  const [sensex, setSensex] = useState({
+    price: null,
+    lastNonZeroChange: 0,
+    flash: "text-gray-700",
+    animate: false,
+    arrowFlash: false,
+  });
 
   const fetchMarketData = async () => {
     try {
-      const [niftyRes, sensexRes] = await Promise.all([getNifty(), getSensex()]);
+      const [niftyRes, sensexRes] = await Promise.all([MarketAPI.nifty(), MarketAPI.sensex()]); // ✅ updated usage
 
       const niftyPrice = niftyRes.data?.data?.price ?? null;
       const sensexPrice = sensexRes.data?.data?.price ?? null;
 
+      // Nifty update
       setNifty(prev => {
         const change = prev.price !== null ? niftyPrice - prev.price : 0;
-        const highlight = prev.price !== niftyPrice;
-        console.log(`📈 Nifty update: Prev=${prev.price}, Current=${niftyPrice}, Change=${change.toFixed(2)}`);
-        return { price: niftyPrice, prevPrice: prev.price ?? niftyPrice, change, highlight };
+        const lastNonZeroChange = change !== 0 ? change : prev.lastNonZeroChange;
+        const flash =
+          change > 0 ? "text-green-600" :
+          change < 0 ? "text-red-500" :
+          prev.flash;
+        const arrowFlash = change !== 0;
+
+        return { price: niftyPrice, lastNonZeroChange, flash, animate: arrowFlash, arrowFlash };
       });
 
+      // Sensex update
       setSensex(prev => {
         const change = prev.price !== null ? sensexPrice - prev.price : 0;
-        const highlight = prev.price !== sensexPrice;
-        console.log(`📈 Sensex update: Prev=${prev.price}, Current=${sensexPrice}, Change=${change.toFixed(2)}`);
-        return { price: sensexPrice, prevPrice: prev.price ?? sensexPrice, change, highlight };
-      });
+        const lastNonZeroChange = change !== 0 ? change : prev.lastNonZeroChange;
+        const flash =
+          change > 0 ? "text-green-600" :
+          change < 0 ? "text-red-500" :
+          prev.flash;
+        const arrowFlash = change !== 0;
 
+        return { price: sensexPrice, lastNonZeroChange, flash, animate: arrowFlash, arrowFlash };
+      });
     } catch (err) {
       console.error("❌ Failed to fetch market data:", err);
     }
@@ -39,36 +63,18 @@ const TopBar = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Reset highlight after 1 second
-  useEffect(() => {
-    if (nifty.highlight) {
-      const timer = setTimeout(() => setNifty(prev => ({ ...prev, highlight: false })), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [nifty.highlight]);
-
-  useEffect(() => {
-    if (sensex.highlight) {
-      const timer = setTimeout(() => setSensex(prev => ({ ...prev, highlight: false })), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [sensex.highlight]);
-
   const formatValue = (val) => (val !== null ? val.toFixed(2) : "--");
 
-  const renderChange = (change) => {
-    if (change > 0) return `↑ ${change.toFixed(2)}`;
-    if (change < 0) return `↓ ${Math.abs(change).toFixed(2)}`;
+  const renderChange = (lastNonZeroChange, arrowFlash) => {
+    if (lastNonZeroChange > 0)
+      return <span className={clsx(arrowFlash && "animate-pulse")}>↑ {lastNonZeroChange.toFixed(2)}</span>;
+    if (lastNonZeroChange < 0)
+      return <span className={clsx(arrowFlash && "animate-pulse")}>↓ {Math.abs(lastNonZeroChange).toFixed(2)}</span>;
     return "—";
   };
 
-  const changeColor = (change) => {
-    if (change > 0) return "text-green-600";
-    if (change < 0) return "text-red-500";
-    return "text-gray-500";
-  };
-
-  const highlightClass = (highlight) => highlight ? "bg-yellow-200 transition-colors duration-500" : "";
+  const animatedClass = (animate) =>
+    animate ? "transition-colors duration-500 scale-105" : "transition-colors duration-500 scale-100";
 
   return (
     <div className="w-full h-[10vh] flex items-center shadow-[0px_0px_4px_2px_rgb(236,235,235)] box-border z-[9]">
@@ -78,11 +84,11 @@ const TopBar = () => {
           <p className="text-[0.8rem] font-medium uppercase text-[#616161] whitespace-nowrap">
             NIFTY 50
           </p>
-          <p className={clsx(`text-[0.8rem] font-medium ${changeColor(nifty.change)}`, highlightClass(nifty.highlight))}>
+          <p className={clsx(`text-[0.8rem] font-medium ${nifty.flash}`, animatedClass(nifty.animate))}>
             {formatValue(nifty.price)}
           </p>
-          <p className={clsx(`text-[0.8rem] font-normal ${changeColor(nifty.change)}`, highlightClass(nifty.highlight))}>
-            {renderChange(nifty.change)}
+          <p className={clsx(`text-[0.8rem] font-normal ${nifty.flash}`, animatedClass(nifty.animate))}>
+            {renderChange(nifty.lastNonZeroChange, nifty.arrowFlash)}
           </p>
         </div>
 
@@ -91,11 +97,11 @@ const TopBar = () => {
           <p className="text-[0.8rem] font-medium uppercase text-[#616161] whitespace-nowrap">
             SENSEX
           </p>
-          <p className={clsx(`text-[0.8rem] font-medium ${changeColor(sensex.change)}`, highlightClass(sensex.highlight))}>
+          <p className={clsx(`text-[0.8rem] font-medium ${sensex.flash}`, animatedClass(sensex.animate))}>
             {formatValue(sensex.price)}
           </p>
-          <p className={clsx(`text-[0.8rem] font-normal ${changeColor(sensex.change)}`, highlightClass(sensex.highlight))}>
-            {renderChange(sensex.change)}
+          <p className={clsx(`text-[0.8rem] font-normal ${sensex.flash}`, animatedClass(sensex.animate))}>
+            {renderChange(sensex.lastNonZeroChange, sensex.arrowFlash)}
           </p>
         </div>
       </div>

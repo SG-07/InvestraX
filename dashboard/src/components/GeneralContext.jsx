@@ -1,31 +1,58 @@
 import { createContext, useContext, useState } from "react";
+import BuyActionWindow from "./BuyActionWindow";
 
-const GeneralContext = createContext(null);
+const GeneralContext = createContext();
 
 export const GeneralContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [holdings, setHoldings] = useState([]);
+  const [user, setUser] = useState(null); // ✅ Added user state
   const [wallet, setWallet] = useState(0);
-  const [portfolio, setPortfolio] = useState({});
+  const [holdings, setHoldings] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [portfolio, setPortfolio] = useState({});
+
+  // BuyActionWindow state
+  const [isBuyWindowOpen, setIsBuyWindowOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState({ symbol: null, price: null });
+
+  const openBuyWindow = (symbol, price = null) => {
+    setSelectedStock({ symbol, price });
+    setIsBuyWindowOpen(true);
+  };
+
+  const closeBuyWindow = () => {
+    setIsBuyWindowOpen(false);
+    setSelectedStock({ symbol: null, price: null });
+  };
 
   return (
     <GeneralContext.Provider
       value={{
-        user, setUser,
-        holdings, setHoldings,
-        wallet, setWallet,
-        portfolio, setPortfolio,
-        transactions, setTransactions,
+        user,
+        setUser,
+        wallet,
+        setWallet,
+        holdings,
+        setHoldings,
+        setPortfolio, 
+        transactions,
+        setTransactions,
+        isBuyWindowOpen,
+        selectedStock,
+        openBuyWindow,
+        closeBuyWindow,
       }}
     >
       {children}
+      {isBuyWindowOpen && (
+        <BuyActionWindow
+          symbol={selectedStock.symbol}
+          price={selectedStock.price}
+          onClose={closeBuyWindow}
+        />
+      )}
     </GeneralContext.Provider>
   );
 };
 
-export const useGeneralContext = () => {
-  const ctx = useContext(GeneralContext);
-  if (!ctx) throw new Error("useGeneralContext must be used within GeneralContextProvider");
-  return ctx;
-};
+// Custom hook to use context
+export const useGeneralContext = () => useContext(GeneralContext);

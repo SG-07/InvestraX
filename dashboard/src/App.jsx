@@ -7,7 +7,6 @@ import Orders from "./components/Orders";
 import Holdings from "./components/Holdings";
 import Positions from "./components/Positions";
 import Funds from "./components/Funds";
-import Applications from "./components/Applications"; 
 
 function App() {
   return (
@@ -27,7 +26,6 @@ function App() {
             <Route path="holdings" element={<Holdings />} />
             <Route path="positions" element={<Positions />} />
             <Route path="funds" element={<Funds />} />
-            <Route path="apps" element={<Applications />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

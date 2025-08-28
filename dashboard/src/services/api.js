@@ -6,44 +6,61 @@ const API = axios.create({
 });
 
 /* ---------------- AUTH ---------------- */
-export const verifyUser = () => API.get("/auth/verify");
-export const loginUser = (payload) => API.post("/auth/login", payload);
-export const registerUser = (payload) => API.post("/auth/register", payload);
-export const logoutUser = () => API.post("/auth/logout");
+export const AuthAPI = {
+  verify: () => API.get("/auth/verify"),
+  login: (payload) => API.post("/auth/login", payload),
+  register: (payload) => API.post("/auth/register", payload),
+  logout: () => API.post("/auth/logout"),
+};
 
 /* ---------------- HOLDINGS ---------------- */
-export const getHoldings = () => API.get("/api/holdings");
+export const HoldingsAPI = {
+  list: () => API.get("/api/holdings"),
+};
 
 /* ---------------- WATCHLIST ---------------- */
-export const getWatchlist = () => API.get("/api/watchlist");
-export const addToWatchlist = (symbol) => API.post("/api/watchlist", { symbol });
-export const removeFromWatchlist = (symbol) => API.delete(`/api/watchlist/${symbol}`);
+export const WatchlistAPI = {
+  list: () => API.get("/api/watchlist"),
+  add: (symbol) => API.post("/api/watchlist", { symbol }),
+  remove: (symbol) => API.delete(`/api/watchlist/${symbol}`),
+  searchByName: (name) => API.get(`/api/watchlist/search?name=${encodeURIComponent(name)}`),
+};
 
 /* ---------------- ORDERS ---------------- */
-export const getOrders = () => API.get("/api/orders");
-export const placeOrder = (payload) => API.post("/api/orders", payload);
+export const OrdersAPI = {
+  list: () => API.get("/api/orders"),
+  place: (payload) => API.post("/api/orders", payload),
+};
 
-/* ---------------- ACTIONS (BUY/SELL) ---------------- */
-export const buyStock = (payload) => API.post("/api/buy", payload);
-export const sellStock = (payload) => API.post("/api/sell", payload);
+/* ---------------- TRADING ACTIONS ---------------- */
+export const TradeAPI = {
+  buy: (payload) => API.post("/api/buy", payload),
+  sell: (payload) => API.post("/api/sell", payload),
+  resetAccount: () => API.post("/api/reset"),
+};
 
 /* ---------------- PORTFOLIO ---------------- */
-export const getPortfolio = () => API.get("/api/portfolio/summary");
-
-/* ---------------- PORTFOLIO CHART ---------------- */
-export const getHoldingsChartData = () => API.get("/api/portfolio/holdings");
+export const PortfolioAPI = {
+  summary: () => API.get("/api/portfolio/summary"),
+  chart: () => API.get("/api/holdings"),
+};
 
 /* ---------------- WALLET ---------------- */
-export const getWallet = () => API.get("/api/wallet");
-export const resetWallet = () => API.post("/api/wallet/reset");
-export const getTransactions = () => API.get("/api/wallet/transactions");
+export const WalletAPI = {
+  get: () => API.get("/api/wallet"),
+  reset: () => API.post("/api/wallet/reset"),
+  transactions: () => API.get("/api/wallet/transactions"),
+};
 
 /* ---------------- MARKET ---------------- */
-export const getNifty = () => API.get("/api/stocks/market/nifty");
-export const getSensex = () => API.get("/api/stocks/market/sensex");
+export const MarketAPI = {
+  nifty: () => API.get("/api/stocks/market/nifty"),
+  sensex: () => API.get("/api/stocks/market/sensex"),
+};
 
 /* ---------------- POSITIONS ---------------- */
-export const getPositions = () => API.get("/api/positions");
-
+export const PositionsAPI = {
+  list: () => API.get("/api/positions"),
+};
 
 export default API;
