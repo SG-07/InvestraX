@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import WatchList from "./WatchList";
 import { useGeneralContext } from "./GeneralContext";
-import { getHoldings, getWallet, getPortfolio } from "../services/api";
+import { HoldingsAPI, WalletAPI, PortfolioAPI } from "../services/api"; 
 
 const Dashboard = () => {
   const { setHoldings, setWallet, setPortfolio } = useGeneralContext();
@@ -12,9 +12,9 @@ const Dashboard = () => {
       try {
         console.log("📊 Dashboard mounted, fetching initial data...");
         const [holdingsRes, walletRes, portfolioRes] = await Promise.all([
-          getHoldings(),
-          getWallet(),
-          getPortfolio(),
+          HoldingsAPI.list(),      // ✅ updated usage
+          WalletAPI.get(),         // ✅ updated usage
+          PortfolioAPI.summary(),  // ✅ updated usage
         ]);
 
         setHoldings(Array.isArray(holdingsRes.data) ? holdingsRes.data : []);

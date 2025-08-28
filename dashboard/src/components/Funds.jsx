@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGeneralContext } from "./GeneralContext";
-import { getWallet, resetWallet } from "../services/api";
+import { WalletAPI } from "../services/api"; 
 
 const Funds = () => {
   const { wallet, setWallet, setHoldings, setTransactions } = useGeneralContext();
@@ -8,7 +8,7 @@ const Funds = () => {
   useEffect(() => {
     async function fetchWallet() {
       try {
-        const res = await getWallet();
+        const res = await WalletAPI.get(); 
         setWallet(res.data.balance);
       } catch (err) {
         console.error("❌ Error fetching wallet:", err);
@@ -20,7 +20,7 @@ const Funds = () => {
   const handleReset = async () => {
     if (!window.confirm("⚠️ Are you sure you want to reset your portfolio?")) return;
     try {
-      const res = await resetWallet();
+      const res = await WalletAPI.reset(); // ✅ call reset()
       setWallet(res.data.balance);           // reset balance
       setHoldings([]);                       // clear holdings
       setTransactions([]);                   // clear transactions

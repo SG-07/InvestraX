@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPositions } from "../services/api";
+import { PositionsAPI } from "../services/api"; // ✅ use API object
 
 const Positions = () => {
   const [positions, setPositions] = useState([]);
@@ -8,7 +8,7 @@ const Positions = () => {
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const res = await getPositions();
+        const res = await PositionsAPI.list(); // ✅ call list()
         setPositions(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("❌ Failed to fetch positions:", err);
@@ -21,7 +21,8 @@ const Positions = () => {
   }, []);
 
   if (loading) return <p className="text-center mt-10">Loading positions...</p>;
-  if (positions.length === 0) return <p className="text-center mt-10 text-gray-500">No positions found</p>;
+  if (positions.length === 0)
+    return <p className="text-center mt-10 text-gray-500">No positions found</p>;
 
   return (
     <>

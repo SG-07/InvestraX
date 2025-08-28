@@ -38,3 +38,24 @@ exports.remove = async (req, res) => {
   await Watchlist.deleteOne({ userId, symbol });
   res.json({ success: true });
 };
+
+exports.search = async (req, res) => {
+  const { name } = req.query;
+  if (!name || !name.trim()) return res.status(400).json({ error: "Name is required" });
+
+  try {
+    const regex = new RegExp(name.trim(), "i"); // case-insensitive search
+    const stocks = await Stocks.find({ name: regex }).limit(10).lean();
+
+    const result = stocks.map(s => ({
+      symbol: s.symbol,
+      name: s.name,
+      price: s.price, // latest price from DB
+    }));
+
+    res.json({ data: result });
+  } catch (err) {
+    console.error("❌ Failed to search stocks:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

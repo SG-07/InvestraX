@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { getHoldingsChartData } from "../services/api";
+import { PortfolioAPI } from "../services/api"; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -11,7 +11,7 @@ export function DoughnutChart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getHoldingsChartData();
+        const res = await PortfolioAPI.chart(); 
         const holdings = res.data || [];
 
         const labels = holdings.map(h => h.symbol);
