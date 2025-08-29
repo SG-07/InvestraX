@@ -76,23 +76,24 @@ exports.categories = async (_req, res) => {
 // 📌 Get Sensex (special symbol)
 exports.getSensex = async (_req, res) => {
   try {
-    const sensex = await Stocks.findOne({ symbol: "INDEXBOM:SENSEX" });
+    const sensex = await Stocks.findOne({ symbol: "INDEXBOM:SENSEX" }).sort({ updatedAt: -1 });
     if (!sensex) return res.status(404).json({ error: "Sensex data not found" });
 
-    res.json({ data: formatStockData(sensex) });
+    res.json({ success: true, data: sensex });
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch Sensex data", details: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // 📌 Get Nifty (special symbol)
 exports.getNifty = async (_req, res) => {
   try {
-    const nifty = await Stocks.findOne({ symbol: "INDEXNSE:NIFTY_50" });
+    const nifty = await Stocks.findOne({ symbol: "INDEXNSE:NIFTY_50" }).sort({ updatedAt: -1 });
     if (!nifty) return res.status(404).json({ error: "Nifty data not found" });
 
-    res.json({ data: formatStockData(nifty) });
+    res.json({ success: true, data: nifty });
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch Nifty data", details: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
+

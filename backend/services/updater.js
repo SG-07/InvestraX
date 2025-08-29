@@ -15,13 +15,23 @@ async function updateStocksFromSheet() {
       await Stock.findOneAndUpdate(
         { symbol: row.attribute },
         {
-          price: Number(row.price) || 0,
-          priceopen: Number(row.priceopen) || 0,
-          high: Number(row.high) || 0,
-          low: Number(row.low) || 0,
-          volume: Number(row.volume) || 0,
-          dataDelay: Number(row.dataDelay) || 0,
-          updatedAt: new Date(),
+          $set: {
+            price: Number(row.price) || 0,
+            priceopen: Number(row.priceopen) || 0,
+            high: Number(row.high) || 0,
+            low: Number(row.low) || 0,
+            volume: Number(row.volume) || 0,
+            dataDelay: Number(row.dataDelay) || 0,
+            change: Number(row.change) || 0,
+            changepct: Number(row.changepct) || 0,
+            eps: Number(row.eps) || 0,
+            pe: Number(row.pe) || 0,
+            marketcap: Number(row.marketcap) || 0,
+            high52: Number(row.high52) || 0,
+            low52: Number(row.low52) || 0,
+
+            updatedAt: new Date(),
+          },
         },
         { new: true, upsert: true }
       );
