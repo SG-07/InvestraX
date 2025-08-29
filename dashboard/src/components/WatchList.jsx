@@ -16,9 +16,9 @@ const WatchList = () => {
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [holdingsData, setHoldingsData] = useState({ labels: [], datasets: [] });
-  const [activeSearchSymbols, setActiveSearchSymbols] = useState([]); // NEW
+  const [activeSearchSymbols, setActiveSearchSymbols] = useState([]);
 
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 6; // 🔹 show only 6 per page
 
   const fetchWatchlist = async () => {
     try {
@@ -99,7 +99,7 @@ const WatchList = () => {
       {/* --- Company search component --- */}
       <WatchlistSearch 
         fetchWatchlist={fetchWatchlist} 
-        setActiveSearchSymbols={setActiveSearchSymbols} // NEW
+        setActiveSearchSymbols={setActiveSearchSymbols} 
       />
 
       {/* --- Watchlist table --- */}
@@ -158,17 +158,25 @@ const WatchList = () => {
         {/* --- Pagination --- */}
         {totalPages > 1 && (
           <div className="flex justify-center gap-2 p-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i + 1)}
-                className={`px-2 py-1 border rounded ${
-                  page === i + 1 ? "bg-blue-500 text-white" : "bg-white"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className={`px-3 py-1 rounded ${page === 1 ? "bg-gray-200 text-gray-400" : "bg-gray-300"}`}
+            >
+              Prev
+            </button>
+
+            <span className="px-2 py-1 text-gray-600">
+              Page {page} of {totalPages}
+            </span>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+              className={`px-3 py-1 rounded ${page === totalPages ? "bg-gray-200 text-gray-400" : "bg-gray-300"}`}
+            >
+              Next
+            </button>
           </div>
         )}
       </div>
