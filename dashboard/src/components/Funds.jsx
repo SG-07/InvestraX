@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGeneralContext } from "./GeneralContext";
-import { WalletAPI } from "../services/api"; 
+import { PortfolioAPI, TradeAPI } from "../services/api";
 
 const Funds = () => {
   const { wallet, setWallet, setHoldings, setTransactions } = useGeneralContext();
@@ -8,8 +8,8 @@ const Funds = () => {
   useEffect(() => {
     async function fetchWallet() {
       try {
-        const res = await WalletAPI.get(); 
-        setWallet(res.data.balance);
+        const res = await PortfolioAPI.summary();
+        setWallet(res.data.totalValue ?? 0);
       } catch (err) {
         console.error("❌ Error fetching wallet:", err);
       }
@@ -20,10 +20,10 @@ const Funds = () => {
   const handleReset = async () => {
     if (!window.confirm("⚠️ Are you sure you want to reset your portfolio?")) return;
     try {
-      const res = await WalletAPI.reset(); // ✅ call reset()
-      setWallet(res.data.balance);           // reset balance
-      setHoldings([]);                       // clear holdings
-      setTransactions([]);                   // clear transactions
+      const res = await TradeAPI.resetAccount();
+      setWallet(res.data.balance ?? 0);
+      setHoldings([]);
+      setTransactions([]);
       alert("✅ Portfolio reset successfully!");
     } catch (err) {
       console.error("❌ Reset failed:", err);

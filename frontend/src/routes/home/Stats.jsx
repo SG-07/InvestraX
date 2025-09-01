@@ -1,4 +1,5 @@
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
 
 function Stats() {
   return (
@@ -59,20 +60,19 @@ function Stats() {
           />
 
           <div className="flex flex-col sm:flex-row gap-8 mt-4">
-            <a
+            <Link
               className="text-blue-400 font-semibold inline-flex items-center gap-2 hover:underline"
-              href=""
+              to="/underconstruction"
             >
               Explore Our Products <ArrowRightIcon className="w-5 h-5" />
-            </a>
+            </Link>
 
-            <a
+            <Link to="/underconstruction"
               className="text-blue-400 font-semibold inline-flex items-center gap-2 hover:underline"
-              href=""
             >
               Try Kite Demo
               <ArrowRightIcon className="w-5 h-5" />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

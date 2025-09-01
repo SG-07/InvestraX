@@ -1,10 +1,10 @@
-import WatchlistAPI from "../api/watchlist"; 
+import WatchlistAPI from "../api/watchlist";
 
 const WatchlistTable = ({ watchlist, setWatchlist, openBuyWindow }) => {
   const handleRemove = async (symbol) => {
     try {
       await WatchlistAPI.remove(symbol);
-      setWatchlist((prev) => prev.filter((s) => s.symbol !== symbol));
+      setWatchlist((prev) => prev.filter((s) => s.symbol !== symbol)); // ✅ update state
     } catch (err) {
       alert("❌ Failed to remove from watchlist");
     }
@@ -46,7 +46,7 @@ const WatchlistTable = ({ watchlist, setWatchlist, openBuyWindow }) => {
                       onClick={() => openBuyWindow(stock.symbol)}
                       className="px-3 py-1 bg-blue-500 text-white rounded-md"
                     >
-                      Trade
+                      Buy
                     </button>
                     <button
                       onClick={() => handleRemove(stock.symbol)}

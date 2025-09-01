@@ -4,14 +4,16 @@ const redirectData = document.getElementById("redirect-data");
 const frontendUrl = redirectData.dataset.frontendUrl;
 
 function updateCountdown() {
-  const countdownEl = document.getElementById("countdown");
-  if (!countdownEl) return;
+  if (countdown > -1) {
+    const countdownEl = document.getElementById("countdown");
+    if (!countdownEl) return;
 
-  countdownEl.textContent = countdown;
-  if (countdown <= 0) {
-    window.location.href = frontendUrl;
+    countdownEl.textContent = countdown;
+    if (countdown === 0) {
+      window.location.href = frontendUrl;
+    }
+    countdown--;
   }
-  countdown--;
 }
 
 window.onload = () => {

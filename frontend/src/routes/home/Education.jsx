@@ -1,4 +1,5 @@
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { Link } from "react-router-dom";
 
 function Education() {
   return (
@@ -23,25 +24,23 @@ function Education() {
             Varsity, the largest online stock market education book in the world
             covering everything from the basics to advanced trading.
           </p>
-          <a
+          <Link to="/underconstruction"
             className="text-blue-400 font-semibold inline-flex items-center gap-2 hover:underline mb-5"
-            href=""
           >
             Varisty
-            <ArrowRightIcon className="w-5 h-5" />
-          </a>
+            <ArrowRightIcon className="w-5 h-5" /> </Link>
+          
 
           <p className=" mb-6">
             TradingQ&A, the most active trading and investment community in
             India for all your market related queries.
           </p>
-          <a
+          <Link to="/underconstruction"
             className="text-blue-400 font-semibold inline-flex items-center gap-2 hover:underline mb-5"
-            href=""
           >
             Trading Q&A
             <ArrowRightIcon className="w-5 h-5" />
-          </a>
+          </Link>
         </div>
       </div>
     </div>
