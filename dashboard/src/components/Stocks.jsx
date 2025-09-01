@@ -1,24 +1,22 @@
 import { useEffect, useState } from "react";
-import { StocksAPI, TradeAPI, PortfolioAPI } from "../services/api";
+import { StocksAPI, PortfolioAPI } from "../services/api";
 import { useGeneralContext } from "./GeneralContext";
+import BuyActionWindow from "./BuyActionWindow";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Stocks = () => {
-  const {
-    setHoldings,
-    setWallet,
-    transactions,
-    setTransactions,
-    setPortfolio,
-  } = useGeneralContext();
+  const { setPortfolio, refreshPortfolio } = useGeneralContext();
 
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
 
-  // ✅ Fetch all stocks from DB
+  // Fetch all stocks from DB
   useEffect(() => {
     async function fetchStocks() {
       try {
-        const res = await StocksAPI.list({ limit: 100 }); // can add pagination later
+        const res = await StocksAPI.list({ limit: 200 });
         const filteredStocks = (res.data?.data || []).filter((s) => s.name);
         setStocks(filteredStocks);
         console.log(`📊 Stocks rendered: ${filteredStocks.length}`);
@@ -29,65 +27,40 @@ const Stocks = () => {
     fetchStocks();
   }, []);
 
-  const handleTrade = async (symbol, price, type) => {
-    try {
-      // Ask user for quantity
-      const qtyInput = prompt(`Enter quantity to ${type} for ${symbol}:`, "1");
-      if (!qtyInput) return; // user cancelled
-      const qty = parseInt(qtyInput, 10);
-      if (isNaN(qty) || qty <= 0) {
-        alert("❌ Invalid quantity");
-        return;
-      }
-
-      const totalPrice = qty * price;
-
-      // Confirm total price
-      const confirmed = window.confirm(
-        `You are about to ${type} ${qty} shares of ${symbol} at ₹${price} each.\nTotal: ₹${totalPrice}\nProceed?`
-      );
-      if (!confirmed) return;
-
-      setLoading(true);
-
-      const payload = { symbol, qty, price };
-      const res =
-        type === "BUY"
-          ? await TradeAPI.buy(payload)
-          : await TradeAPI.sell(payload);
-
-      setHoldings(res.data?.holdings || []);
-      if (res.data?.portfolio) setWallet(res.data.portfolio.totalValue ?? 0);
-      if (res.data?.transaction) {
-        setTransactions([res.data.transaction, ...(transactions || [])]);
-      }
-
-      alert(`✅ ${type} successful for ${qty} shares of ${symbol}`);
-    } catch (err) {
-      console.error(`❌ ${type} failed:`, err);
-      alert(err?.response?.data?.message || "Trade failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleAddWatchlist = async (symbol) => {
     try {
       const res = await PortfolioAPI.addWatchlist(symbol);
-      alert(`⭐ Added ${symbol} to Watchlist`);
+      toast.success(`⭐ Added ${symbol} to Watchlist`, {
+        position: "top-right",
+      });
 
-      setPortfolio((prev) => ({
-        ...prev,
-        watchlist: res.data.data, // ✅ use .data to get array
-      }));
+      setPortfolio((prev) => {
+        // ensure we don't add duplicates
+        const updatedWatchlist = Array.isArray(prev.watchlist)
+          ? [...new Set([...prev.watchlist, symbol])]
+          : [symbol];
+
+        return {
+          ...prev,
+          watchlist: updatedWatchlist,
+        };
+      });
+
+      console.log("✅ Watchlist updated in context:", symbol);
     } catch (err) {
       console.error("❌ Watchlist add failed:", err);
-      alert(err?.response?.data?.message || "Failed to add to watchlist");
+      toast.error(
+        err?.response?.data?.message || "Failed to add to watchlist",
+        {
+          position: "top-right",
+        }
+      );
     }
   };
 
   return (
     <div className="p-4">
+      <ToastContainer />
       <h3 className="font-semibold text-lg mb-2">All Stocks</h3>
       <table className="w-full border border-gray-300 text-sm">
         <thead className="bg-gray-100">
@@ -115,7 +88,7 @@ const Stocks = () => {
                 </td>
                 <td className="border p-2 flex gap-2">
                   <button
-                    onClick={() => handleTrade(s.symbol, s.price, "BUY")}
+                    onClick={() => setSelectedStock(s)}
                     disabled={loading}
                     className="px-2 py-1 bg-green-600 text-white rounded"
                   >
@@ -139,6 +112,14 @@ const Stocks = () => {
           )}
         </tbody>
       </table>
+
+      {/* BuyActionWindow modal */}
+      {selectedStock && (
+        <BuyActionWindow
+          stock={selectedStock}
+          onClose={() => setSelectedStock(null)}
+        />
+      )}
     </div>
   );
 };

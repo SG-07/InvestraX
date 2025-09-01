@@ -1,96 +1,135 @@
-import { useState } from "react";
-import { PortfolioAPI, TradeAPI } from "../services/api";
+import { useState, useEffect } from "react";
+import WatchlistSearch from "./WatchlistSearch";
+import { DoughnutChart } from "./DoughnutChart";
 import { useGeneralContext } from "./GeneralContext";
+import { toast } from "react-toastify";
+import SellActionWindow from "./SellActionWindow";
 
 const WatchList = () => {
-  const { portfolio, setPortfolio, setHoldings, setWallet, transactions, setTransactions } =
-    useGeneralContext();
+  const { portfolio, openBuyWindow } = useGeneralContext();
+  const [activeSearchSymbols, setActiveSearchSymbols] = useState([]);
+  const [localWatchlist, setLocalWatchlist] = useState([]);
 
-  const [loading, setLoading] = useState(false);
+  // ✅ Normalize stock data before saving
+  const normalizeStock = (stock) => {
+    return {
+      symbol: stock.symbol?.replace(/^.*:/, "").trim() || "UNKNOWN",
+      name: stock.name || stock.symbol || "Unnamed Stock",
+      price: stock.price || 0,
+    };
+  };
 
-  const watchlist = portfolio?.watchlist || [];
+  // 🔄 Sync with portfolio changes
+  useEffect(() => {
+    if (portfolio?.watchlist) {
+      const uniqueStocks = [
+        ...new Map(portfolio.watchlist.map((s) => [s.symbol, normalizeStock(s)]))
+          .values(),
+      ];
+      setLocalWatchlist(uniqueStocks);
+    }
+  }, [portfolio]);
 
-  const handleTrade = async (symbol, price, type) => {
-    setLoading(true);
-    try {
-      const payload = { symbol, qty: 1, price };
-      const res =
-        type === "BUY" ? await TradeAPI.buy(payload) : await TradeAPI.sell(payload);
-
-      setHoldings(res.data?.holdings || []);
-      if (res.data?.portfolio) setWallet(res.data.portfolio.totalValue ?? 0);
-      if (res.data?.transaction) {
-        setTransactions([res.data.transaction, ...(transactions || [])]);
-      }
-
-      alert(`✅ ${type} successful for ${symbol}`);
-    } catch (err) {
-      console.error(`❌ ${type} failed:`, err);
-      alert(err?.response?.data?.message || "Trade failed");
-    } finally {
-      setLoading(false);
+  const handleAddToWatchlist = (stock) => {
+    const normalized = normalizeStock(stock);
+    if (!localWatchlist.some((s) => s.symbol === normalized.symbol)) {
+      const updated = [...localWatchlist, normalized];
+      setLocalWatchlist(updated);
+      toast.success(`✅ Added ${normalized.symbol} to Watchlist`);
+      // TODO: Call backend API to persist
+    } else {
+      toast.info(`ℹ️ ${normalized.symbol} is already in your Watchlist`);
     }
   };
 
-  const handleRemove = async (symbol) => {
-    try {
-      await PortfolioAPI.removeWatchlist(symbol);
+  const handleRemoveFromWatchlist = (symbol) => {
+    const updated = localWatchlist.filter((s) => s.symbol !== symbol);
+    setLocalWatchlist(updated);
+    toast.warn(`🗑️ Removed ${symbol} from Watchlist`);
+    // TODO: Call backend API to persist removal
+  };
 
-      // ✅ Update context portfolio
-      setPortfolio((prev) => ({
-        ...prev,
-        watchlist: (prev.watchlist || []).filter((s) => s.symbol !== symbol),
-      }));
-    } catch (err) {
-      console.error("❌ Failed to remove stock from watchlist:", err);
-    }
+  const [sellWindow, setSellWindow] = useState({ open: false, stock: null });
+
+  const openSellWindow = (stock) => {
+    setSellWindow({ open: true, stock });
+  };
+
+  const closeSellWindow = () => {
+    setSellWindow({ open: false, stock: null });
   };
 
   return (
-    <div className="p-4 bg-white shadow rounded h-full overflow-y-auto">
-      <h2 className="text-lg font-bold mb-3">📋 Watchlist</h2>
-      {watchlist.length === 0 ? (
-        <p className="text-sm text-gray-500">No stocks in your watchlist</p>
-      ) : (
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border p-2">Symbol</th>
-              <th className="border p-2">Price</th>
-              <th className="border p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {watchlist.map((s, i) => (
-              <tr key={i}>
-                <td className="border p-2">{s.symbol}</td>
-                <td className="border p-2">₹{s.price || "-"}</td>
-                <td className="border p-2 flex gap-2">
-                  <button
-                    onClick={() => handleTrade(s.symbol, s.price, "BUY")}
-                    disabled={loading}
-                    className="px-2 py-1 bg-green-600 text-white rounded"
-                  >
-                    Buy
-                  </button>
-                  <button
-                    onClick={() => handleTrade(s.symbol, s.price, "SELL")}
-                    disabled={loading}
-                    className="px-2 py-1 bg-red-600 text-white rounded"
-                  >
-                    Sell
-                  </button>
-                  <button
-                    onClick={() => handleRemove(s.symbol)}
-                    className="px-2 py-1 bg-gray-400 text-white rounded"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="h-full flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+      {/* Divide into 3 parts */}
+      <div className="flex flex-col h-full">
+        {/* 🔍 Search Bar (fixed small area) */}
+        <div className="p-2 border-b border-gray-200 flex-none">
+          <WatchlistSearch
+            onAdd={handleAddToWatchlist}
+            setActiveSearchSymbols={setActiveSearchSymbols}
+          />
+        </div>
+
+        {/* 📋 Watchlist Items (takes remaining space above chart) */}
+        <div className="flex-1 overflow-y-auto p-3">
+          {localWatchlist.length === 0 ? (
+            <p className="text-gray-500 text-sm">No stocks in watchlist</p>
+          ) : (
+            <ul className="space-y-3">
+              {localWatchlist.map((stock) => (
+                <li
+                  key={stock.symbol}
+                  className="p-3 border rounded-lg hover:bg-gray-50"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <p className="font-medium">{stock.name}</p>
+                      <p className="text-xs text-gray-500">{stock.symbol}</p>
+                    </div>
+                    <p className="text-sm font-semibold">₹{stock.price}</p>
+                  </div>
+
+                  {/* 🎯 Action Buttons */}
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => openBuyWindow(stock.symbol, stock.price)}
+                      className="px-3 py-1 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600"
+                    >
+                      Buy
+                    </button>
+                    <button
+                      onClick={() => openSellWindow(stock)}
+                      className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    >
+                      Sell
+                    </button>
+                    <button
+                      onClick={() => handleRemoveFromWatchlist(stock.symbol)}
+                      className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* 📊 Doughnut Chart (fixed 1/3 height) */}
+        <div className="h-1/3 border-t border-gray-200 p-3">
+          {/* <DoughnutChart watchlist={localWatchlist} /> */}
+        </div>
+      </div>
+
+      {/* 🪙 Sell Action Window */}
+      {sellWindow.open && (
+        <SellActionWindow
+          symbol={sellWindow.stock.symbol}
+          price={sellWindow.stock.price}
+          onClose={closeSellWindow}
+        />
       )}
     </div>
   );

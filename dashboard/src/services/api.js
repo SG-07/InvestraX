@@ -20,6 +20,7 @@ export const PortfolioAPI = {
   positions: () => API.get("/portfolio/positions"),
   transactions: () => API.get("/portfolio/transactions"),
   orders: () => API.get("/portfolio/orders"),
+  watchlist: () => API.get("/portfolio/watchlist"),
   getWatchlist: () => API.get("/portfolio/watchlist"),
   addWatchlist: (symbol) => API.post("/portfolio/watchlist", { symbol }),
   removeWatchlist: (symbol) => API.delete(`/portfolio/watchlist/${symbol}`),
