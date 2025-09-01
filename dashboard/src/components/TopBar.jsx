@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Menu from "./Menu";
-import { MarketAPI } from "../services/api";
+import { StocksAPI } from "../services/api";
 import clsx from "clsx";
 
 const TopBar = () => {
@@ -23,8 +23,8 @@ const TopBar = () => {
   const fetchMarketData = async () => {
     try {
       const [niftyRes, sensexRes] = await Promise.all([
-        MarketAPI.nifty(),
-        MarketAPI.sensex(),
+        StocksAPI.nifty(),
+        StocksAPI.sensex(),
       ]);
 
       const niftyPrice = niftyRes.data?.data?.price ?? null;

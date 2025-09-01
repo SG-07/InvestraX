@@ -11,12 +11,10 @@ const BuyActionWindow = ({ symbol, price, onClose }) => {
     setLoading(true);
     try {
       const payload = { symbol, qty, price };
-      const res = type === "BUY"
-        ? await TradeAPI.buy(payload)
-        : await TradeAPI.sell(payload);
+      const res = type === "BUY" ? await TradeAPI.buy(payload) : await TradeAPI.sell(payload);
 
       setHoldings(res.data?.holdings || []);
-      if (res.data?.wallet) setWallet(res.data.wallet.balance ?? res.data.wallet);
+      if (res.data?.portfolio) setWallet(res.data.portfolio.totalValue ?? 0);
       if (res.data?.transaction) setTransactions([res.data.transaction, ...(transactions || [])]);
 
       console.log(`✅ ${type} successful`, res.data);
@@ -35,7 +33,6 @@ const BuyActionWindow = ({ symbol, price, onClose }) => {
     <div className="fixed bottom-5 right-5 w-80 p-4 bg-white rounded shadow-lg border">
       <h2 className="text-lg font-semibold mb-2">{symbol}</h2>
       <p className="mb-3">Price: ₹{Number(price ?? 0).toLocaleString()}</p>
-
       <label className="block text-sm mb-1">Quantity</label>
       <input
         type="number"
@@ -44,7 +41,6 @@ const BuyActionWindow = ({ symbol, price, onClose }) => {
         onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
         className="border p-2 w-full mb-4 rounded"
       />
-
       <div className="flex gap-2 justify-end">
         <button
           onClick={() => handleAction("BUY")}
@@ -69,4 +65,3 @@ const BuyActionWindow = ({ symbol, price, onClose }) => {
 };
 
 export default BuyActionWindow;
-

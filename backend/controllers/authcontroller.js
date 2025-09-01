@@ -1,4 +1,5 @@
-const User = require("../models/usermodel");   
+const User = require("../models/usermodel");
+const Portfolio = require("../models/portfoliomodel");
 const { createSecretToken } = require("../utils/secrettoken");
 
 // ----------------- SIGNUP -----------------
@@ -19,6 +20,14 @@ module.exports.Signup = async (req, res) => {
     }
 
     const user = await User.create({ email, password, username });
+    await Portfolio.create({
+      userId: user._id,
+      balance: 1000000, // ₹10L starting balance
+      holdings: [],
+      positions: [],
+      transactions: [],
+      watchlist: [],
+    });
     console.log("✅ New user created:", user.email);
 
     const token = createSecretToken(user._id);
@@ -60,13 +69,17 @@ module.exports.Login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       console.log("🔴 User not found:", email);
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       console.log("🔴 Incorrect password for user:", email);
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     const token = createSecretToken(user._id);

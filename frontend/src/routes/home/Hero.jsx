@@ -1,6 +1,12 @@
-import React from "react";
+import { useNavigate } from 'react-router-dom';
 
 function Hero() {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate("/signup");
+  };
+
   return (
     <section className="pt-24 bg-white px-10 mb-5">
       {/* Hero Image */}
@@ -22,7 +28,7 @@ function Hero() {
           strategies in a safe, educational environment.
         </p>
 
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 mb-5">
+        <button onClick={handleGetStarted} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 mb-5">
           Get Started
         </button>
       </div>

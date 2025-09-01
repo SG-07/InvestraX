@@ -1,16 +1,16 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import BuyActionWindow from "./BuyActionWindow";
+import { PortfolioAPI } from "../services/api";
 
 const GeneralContext = createContext();
 
 export const GeneralContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // ✅ Added user state
+  const [user, setUser] = useState(null);
   const [wallet, setWallet] = useState(0);
   const [holdings, setHoldings] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [portfolio, setPortfolio] = useState({});
 
-  // BuyActionWindow state
   const [isBuyWindowOpen, setIsBuyWindowOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState({ symbol: null, price: null });
 
@@ -24,22 +24,29 @@ export const GeneralContextProvider = ({ children }) => {
     setSelectedStock({ symbol: null, price: null });
   };
 
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        const { data } = await PortfolioAPI.summary();
+        setPortfolio(data);
+        setWallet(data.totalValue ?? 0);
+      } catch (err) {
+        console.error("Failed to load portfolio summary:", err.message);
+      }
+    };
+    fetchPortfolio();
+  }, []);
+
   return (
     <GeneralContext.Provider
       value={{
-        user,
-        setUser,
-        wallet,
-        setWallet,
-        holdings,
-        setHoldings,
-        setPortfolio, 
-        transactions,
-        setTransactions,
-        isBuyWindowOpen,
-        selectedStock,
-        openBuyWindow,
-        closeBuyWindow,
+        user, setUser,
+        wallet, setWallet,
+        holdings, setHoldings,
+        portfolio, setPortfolio,
+        transactions, setTransactions,
+        isBuyWindowOpen, selectedStock,
+        openBuyWindow, closeBuyWindow,
       }}
     >
       {children}
@@ -54,5 +61,4 @@ export const GeneralContextProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use context
 export const useGeneralContext = () => useContext(GeneralContext);

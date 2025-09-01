@@ -29,37 +29,37 @@ const Menu = () => {
             </Link>
           </li>
           <li className="mr-8">
-            <Link to="/orders" onClick={() => handleMenuClick(1)}>
+            <Link to="/stocks" onClick={() => handleMenuClick(1)}>
               <p className={selectedMenu === 1 ? activeMenuClass : baseMenuClass}>
+                Stocks
+              </p>
+            </Link>
+          </li>
+          <li className="mr-8">
+            <Link to="/orders" onClick={() => handleMenuClick(2)}>
+              <p className={selectedMenu === 2 ? activeMenuClass : baseMenuClass}>
                 Orders
               </p>
             </Link>
           </li>
           <li className="mr-8">
-            <Link to="/holdings" onClick={() => handleMenuClick(2)}>
-              <p className={selectedMenu === 2 ? activeMenuClass : baseMenuClass}>
+            <Link to="/holdings" onClick={() => handleMenuClick(3)}>
+              <p className={selectedMenu === 3 ? activeMenuClass : baseMenuClass}>
                 Holdings
               </p>
             </Link>
           </li>
           <li className="mr-8">
-            <Link to="/positions" onClick={() => handleMenuClick(3)}>
-              <p className={selectedMenu === 3 ? activeMenuClass : baseMenuClass}>
+            <Link to="/positions" onClick={() => handleMenuClick(4)}>
+              <p className={selectedMenu === 4 ? activeMenuClass : baseMenuClass}>
                 Positions
               </p>
             </Link>
           </li>
           <li className="mr-8">
-            <Link to="/funds" onClick={() => handleMenuClick(4)}>
-              <p className={selectedMenu === 4 ? activeMenuClass : baseMenuClass}>
-                Funds
-              </p>
-            </Link>
-          </li>
-          <li className="mr-8">
-            <Link to="/apps" onClick={() => handleMenuClick(6)}>
+            <Link to="/funds" onClick={() => handleMenuClick(6)}>
               <p className={selectedMenu === 6 ? activeMenuClass : baseMenuClass}>
-                Apps
+                Funds
               </p>
             </Link>
           </li>

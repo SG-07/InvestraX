@@ -1,26 +1,13 @@
-import { useEffect } from "react";
 import { useGeneralContext } from "./GeneralContext";
-import { WalletAPI } from "../services/api"; // ✅ import the API object
 
 const Orders = () => {
-  const { transactions, setTransactions } = useGeneralContext();
-
-  useEffect(() => {
-    const fetchTxns = async () => {
-      try {
-        const res = await WalletAPI.transactions(); // ✅ use the correct method
-        setTransactions(res.data.transactions || []);
-      } catch (err) {
-        console.error("❌ Error fetching transactions:", err);
-      }
-    };
-    fetchTxns();
-  }, [setTransactions]);
+  const { transactions } = useGeneralContext();
+  const txns = Array.isArray(transactions) ? transactions : [];
 
   return (
     <div className="p-4">
       <h2 className="text-lg font-bold mb-3">Transaction History</h2>
-      {transactions.length === 0 ? (
+      {txns.length === 0 ? (
         <p>No transactions yet</p>
       ) : (
         <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -35,16 +22,16 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((txn, i) => (
+            {txns.map((txn, i) => (
               <tr key={i}>
                 <td className="border p-2">
-                  {new Date(txn.date).toLocaleString()}
+                  {txn.date ? new Date(txn.date).toLocaleString() : "-"}
                 </td>
                 <td className="border p-2">{txn.type}</td>
                 <td className="border p-2">{txn.symbol || "-"}</td>
                 <td className="border p-2">{txn.qty || 0}</td>
                 <td className="border p-2">₹{txn.price || 0}</td>
-                <td className="border p-2">₹{txn.amount}</td>
+                <td className="border p-2">₹{txn.amount || 0}</td>
               </tr>
             ))}
           </tbody>

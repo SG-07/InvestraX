@@ -1,41 +1,80 @@
-const User = require("../models/usermodel");
+const Portfolio = require("../models/portfoliomodel");
+
+// ----------------------
+// Helpers
+// ----------------------
+
+// Ensure portfolio exists
+async function getOrCreatePortfolio(userId) {
+  let p = await Portfolio.findOne({ userId });
+  if (!p) {
+    p = await Portfolio.create({
+      userId,
+      balance: 1000000, // default ₹10L
+      holdings: [],
+      positions: [],
+      transactions: [],
+      watchlist: [],
+    });
+  }
+  return p;
+}
+
+// ----------------------
+// Controllers
+// ----------------------
 
 // BUY stock
 exports.buyStock = async (req, res) => {
   try {
-    const { symbol, name, qty, price } = req.body;
-    const user = await User.findById(req.user._id);
+    const { symbol, qty, price } = req.body;
+    if (!symbol || !qty || !price || qty <= 0 || price <= 0) {
+      return res
+        .status(400)
+        .json({ message: "symbol, qty (>0) and price (>0) are required" });
+    }
+
+    const userId = req.user._id;
+    const portfolio = await getOrCreatePortfolio(userId);
 
     const cost = qty * price;
-    if (user.balance < cost) {
+    if (portfolio.balance < cost) {
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
-    // Update holdings
-    let holding = user.holdings.find(h => h.symbol === symbol);
-    if (holding) {
-      holding.avg = (holding.avg * holding.qty + cost) / (holding.qty + qty);
-      holding.qty += qty;
+    // Update holdings (weighted avg)
+    const h = portfolio.holdings.find((x) => x.symbol === symbol);
+    if (h) {
+      h.avg = (h.avg * h.qty + cost) / (h.qty + qty);
+      h.qty += qty;
     } else {
-      user.holdings.push({ symbol, name, qty, avg: price });
+      portfolio.holdings.push({ symbol, qty, avg: price });
     }
 
-    user.balance -= cost;
+    // Update balance
+    portfolio.balance -= cost;
 
-    // Transaction log
-    user.transactions.push({
+    // Log transaction
+    portfolio.transactions.push({
       type: "BUY",
       symbol,
       qty,
       price,
       amount: cost,
+      date: new Date(),
     });
 
-    await user.save();
-    res.json({ success: true, balance: user.balance, holdings: user.holdings });
+    portfolio.updatedAt = new Date();
+    await portfolio.save();
+
+    return res.json({
+      success: true,
+      balance: portfolio.balance,
+      holdings: portfolio.holdings,
+    });
   } catch (err) {
-    console.error("❌ Buy error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ [buyStock] error:", err);
+    res.status(500).json({ message: err.message || "Server error" });
   }
 };
 
@@ -43,67 +82,94 @@ exports.buyStock = async (req, res) => {
 exports.sellStock = async (req, res) => {
   try {
     const { symbol, qty, price } = req.body;
-    const user = await User.findById(req.user._id);
+    if (!symbol || !qty || !price || qty <= 0 || price <= 0) {
+      return res
+        .status(400)
+        .json({ message: "symbol, qty (>0) and price (>0) are required" });
+    }
 
-    const holding = user.holdings.find(h => h.symbol === symbol);
-    if (!holding || holding.qty < qty) {
+    const userId = req.user._id;
+    const portfolio = await getOrCreatePortfolio(userId);
+
+    const h = portfolio.holdings.find((x) => x.symbol === symbol);
+    if (!h || h.qty < qty) {
       return res.status(400).json({ message: "Not enough shares to sell" });
     }
 
     const proceeds = qty * price;
-    holding.qty -= qty;
-
-    if (holding.qty === 0) {
-      user.holdings = user.holdings.filter(h => h.symbol !== symbol);
+    h.qty -= qty;
+    if (h.qty === 0) {
+      portfolio.holdings = portfolio.holdings.filter((x) => x.symbol !== symbol);
     }
 
-    user.balance += proceeds;
+    portfolio.balance += proceeds;
 
-    // Transaction log
-    user.transactions.push({
+    // Log transaction
+    portfolio.transactions.push({
       type: "SELL",
       symbol,
       qty,
       price,
       amount: proceeds,
+      date: new Date(),
     });
 
-    await user.save();
-    res.json({ success: true, balance: user.balance, holdings: user.holdings });
+    portfolio.updatedAt = new Date();
+    await portfolio.save();
+
+    return res.json({
+      success: true,
+      balance: portfolio.balance,
+      holdings: portfolio.holdings,
+    });
   } catch (err) {
-    console.error("❌ Sell error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ [sellStock] error:", err);
+    res.status(500).json({ message: err.message || "Server error" });
   }
 };
 
 // RESET account
 exports.resetAccount = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const userId = req.user._id;
+    const portfolio = await getOrCreatePortfolio(userId);
 
-    user.balance = 200000;
-    user.holdings = [];
-    user.transactions.push({ type: "RESET", amount: 200000 });
+    portfolio.balance = 1000000; // reset to 10L
+    portfolio.holdings = [];
+    portfolio.positions = [];
+    portfolio.watchlist = [];
 
-    await user.save();
-    res.json({ success: true, balance: user.balance, holdings: user.holdings });
+    // Log reset transaction
+    portfolio.transactions.push({
+      type: "RESET",
+      amount: 1000000,
+      date: new Date(),
+    });
+
+    portfolio.updatedAt = new Date();
+    await portfolio.save();
+
+    res.json({
+      success: true,
+      balance: portfolio.balance,
+      holdings: portfolio.holdings,
+    });
   } catch (err) {
-    console.error("❌ Reset error:", err);
+    console.error("❌ [resetAccount] error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// WALLET info
+// WALLET (alias for balance + transactions)
 exports.getWallet = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const portfolio = await getOrCreatePortfolio(req.user._id);
     res.json({
-      balance: user.balance,
-      holdings: user.holdings,
-      transactions: user.transactions,
+      balance: portfolio.balance,
+      transactions: portfolio.transactions,
     });
   } catch (err) {
-    console.error("❌ Wallet error:", err);
+    console.error("❌ [getWallet] error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

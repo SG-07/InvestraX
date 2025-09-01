@@ -8,35 +8,31 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const helmet = require("helmet");
 const morgan = require("morgan");
+
 const { isLoggedIn } = require("./middleware/authmiddleware");
 const { updateStocksFromSheet, startSheetUpdater } = require("./services/updater");
 
-// Routes
+// ------------ Import Routes ------------
 const authRoutes = require("./routes/authroutes");
 const userRoutes = require("./routes/usersroutes");
 const stocksRoutes = require("./routes/stocksroutes");
-const holdingsRoutes = require("./routes/holdingsroutes");
-const positionsRoutes = require("./routes/positionsroutes");
-const watchlistRoutes = require("./routes/watchlistroutes");
-const ordersRoutes = require("./routes/ordersroutes");
 const portfolioRoutes = require("./routes/portfolioroutes");
 const tradeRoutes = require("./routes/traderoutes");
-const walletRoutes = require("./routes/walletroutes");
 
 const app = express();
 const port = process.env.PORT || 8080;
 app.set("trust proxy", 1);
 
-// --------------- EJS Setup ---------------------
+// ------------ EJS Setup ------------
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// ------------ Security & Logging --------------
+// ------------ Security & Logging ------------
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// -------------------- CORS --------------------
+// ------------ CORS Setup ------------
 const allowed = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
   .map((s) => s.trim())
@@ -46,12 +42,12 @@ console.log("✅ Allowed origins:", allowed);
 
 const corsOptions = {
   origin: function (origin, cb) {
-    console.log("🌍 CORS check for origin:", origin);
+    console.log("🌍 CORS check for:", origin);
     if (!origin || allowed.includes(origin)) {
-      console.log("✅ Origin allowed:", origin);
+      console.log("✅ Allowed:", origin);
       return cb(null, true);
     }
-    console.log("❌ Origin blocked:", origin);
+    console.log("❌ Blocked:", origin);
     cb(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -61,13 +57,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 
-// -------------------- Middleware --------------------
+// ------------ Middleware ------------
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 
-// -------------------- MongoDB --------------------
+// ------------ MongoDB Connection ------------
 mongoose
   .connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 30000,
@@ -85,34 +81,29 @@ process.on("SIGINT", async () => {
     console.log("🛑 Mongo connection closed");
     process.exit(0);
   } catch (err) {
-    console.error("Close error:", err);
+    console.error("❌ Close error:", err);
     process.exit(1);
   }
 });
 
-// -------------------- Health check --------------------
+// ------------ Health Check ------------
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "backend", timestamp: Date.now() });
 });
 
-// -------------------- Routes --------------------
+// ------------ Routes ------------
 app.use("/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/stocks", stocksRoutes);
-app.use("/api/holdings", holdingsRoutes);
-app.use("/api/positions", positionsRoutes);
-app.use("/api/watchlist", watchlistRoutes);
-app.use("/api/orders", ordersRoutes);
 app.use("/api/portfolio", portfolioRoutes);
-app.use("/api", isLoggedIn, tradeRoutes);
-app.use("/api/wallet", walletRoutes);
+app.use("/api/trade", isLoggedIn, tradeRoutes); // trade APIs protected
 
-// -------------------- Root route --------------------
+// ------------ Root Route ------------
 app.get("/", (req, res) => {
   res.render("index", { frontendUrl: process.env.FRONTEND_URL });
 });
 
-// -------------------- Catch-all for 404 --------------------
+// ------------ 404 Handler ------------
 app.use((req, res) => {
   console.log("⚠️ 404 Not Found:", req.originalUrl);
   if (req.headers.accept && req.headers.accept.includes("text/html")) {
@@ -122,24 +113,23 @@ app.use((req, res) => {
   }
 });
 
-// -------------------- Start Server --------------------
+// ------------ Start Server ------------
 app.listen(port, () => {
-  console.log(`🚀 Server listening on :${port}`);
-  console.log("🔑 Dashboard URL (from env):", process.env.DASHBOARD_URL);
+  console.log(`🚀 Server running on port: ${port}`);
+  console.log("🔑 Dashboard URL:", process.env.DASHBOARD_URL);
 
-  // ✅ Stock updater
+  // ✅ Initial load of stock prices into DB
   updateStocksFromSheet();
 
-  // ✅ Sheet updater (runs only if SHEET_URL is set in env)
+  // ✅ Start periodic updater
   if (process.env.SHEET_CSV_URL) {
     try {
       startSheetUpdater();
       console.log("📊 Google Sheet updater started...");
     } catch (e) {
-      console.error("❌ sheetUpdater: failed to start:", e.message || e.toString());
+      console.error("❌ Failed to start sheet updater:", e.message || e.toString());
     }
   } else {
-    console.log("⚠️ No SHEET_URL provided, skipping sheet updater.");
+    console.log("⚠️ No SHEET_CSV_URL provided, skipping updater.");
   }
-
 });

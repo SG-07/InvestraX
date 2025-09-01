@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
 const stockSchema = new mongoose.Schema(
   {
     symbol: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     category: { type: String },
-
     price: { type: Number, required: true },       
     priceopen: { type: Number },                   
     high: { type: Number },                        
@@ -14,10 +12,8 @@ const stockSchema = new mongoose.Schema(
     volume: { type: Number },                      
     datadelay: { type: Number },                   
     tradetime: { type: Date },                     
-
     change: { type: Number },                      
     changepct: { type: Number },                   
-
     low52: { type: Number },                       
     high52: { type: Number },                      
     eps: { type: Number },                         

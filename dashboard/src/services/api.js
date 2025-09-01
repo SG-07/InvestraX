@@ -1,66 +1,43 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL + "/api",
   withCredentials: true,
 });
 
-/* ---------------- AUTH ---------------- */
+// ---------------------------- AUTH ----------------------------
 export const AuthAPI = {
+  signup: (data) => API.post("/auth/signup", data),
+  login: (data) => API.post("/auth/login", data),
   verify: () => API.get("/auth/verify"),
-  login: (payload) => API.post("/auth/login", payload),
-  register: (payload) => API.post("/auth/register", payload),
   logout: () => API.post("/auth/logout"),
 };
 
-/* ---------------- HOLDINGS ---------------- */
-export const HoldingsAPI = {
-  list: () => API.get("/api/holdings"),
-};
-
-/* ---------------- WATCHLIST ---------------- */
-export const WatchlistAPI = {
-  list: () => API.get("/api/watchlist"),
-  add: (symbol) => API.post("/api/watchlist", { symbol }),
-  remove: (symbol) => API.delete(`/api/watchlist/${symbol}`),
-  searchByName: (name) => API.get(`/api/watchlist/search?name=${encodeURIComponent(name)}`),
-};
-
-/* ---------------- ORDERS ---------------- */
-export const OrdersAPI = {
-  list: () => API.get("/api/orders"),
-  place: (payload) => API.post("/api/orders", payload),
-};
-
-/* ---------------- TRADING ACTIONS ---------------- */
-export const TradeAPI = {
-  buy: (payload) => API.post("/api/buy", payload),
-  sell: (payload) => API.post("/api/sell", payload),
-  resetAccount: () => API.post("/api/reset"),
-};
-
-/* ---------------- PORTFOLIO ---------------- */
+// ----------- PORTFOLIO (wallet + holdings + positions + watchlist) ------------
 export const PortfolioAPI = {
-  summary: () => API.get("/api/portfolio/summary"),
-  chart: () => API.get("/api/holdings"),
+  summary: () => API.get("/portfolio/summary"),
+  holdings: () => API.get("/portfolio/holdings"),
+  positions: () => API.get("/portfolio/positions"),
+  transactions: () => API.get("/portfolio/transactions"),
+  orders: () => API.get("/portfolio/orders"),
+  getWatchlist: () => API.get("/portfolio/watchlist"),
+  addWatchlist: (symbol) => API.post("/portfolio/watchlist", { symbol }),
+  removeWatchlist: (symbol) => API.delete(`/portfolio/watchlist/${symbol}`),
 };
 
-/* ---------------- WALLET ---------------- */
-export const WalletAPI = {
-  get: () => API.get("/api/wallet"),
-  reset: () => API.post("/api/wallet/reset"),
-  transactions: () => API.get("/api/wallet/transactions"),
+// ---------------------------- TRADES (buy / sell) ----------------------------
+export const TradeAPI = {
+  buy: (data) => API.post("/trade/buy", data),
+  sell: (data) => API.post("/trade/sell", data),
+  reset: () => API.post("/trade/reset"),
+  wallet: () => API.get("/trade/wallet"),
 };
 
-/* ---------------- MARKET ---------------- */
-export const MarketAPI = {
-  nifty: () => API.get("/api/stocks/market/nifty"),
-  sensex: () => API.get("/api/stocks/market/sensex"),
+// ---------------------------- STOCKS ----------------------------
+export const StocksAPI = {
+  list: (params) => API.get("/stocks", { params }),
+  getOne: (symbol) => API.get(`/stocks/${symbol}`),
+  categories: () => API.get("/stocks/categories"),
+  sensex: () => API.get("/stocks/market/sensex"),
+  nifty: () => API.get("/stocks/market/nifty"),
 };
-
-/* ---------------- POSITIONS ---------------- */
-export const PositionsAPI = {
-  list: () => API.get("/api/positions"),
-};
-
-export default API;
