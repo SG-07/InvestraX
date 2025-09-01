@@ -9,11 +9,13 @@ async function updateStocksFromSheet() {
   try {
     const { data } = await axios.get(SHEET_CSV_URL);
     const rows = await csv().fromString(data);
+    
 
     let count = 0;
     for (let row of rows) {
+      const symbol = cleanSymbol(row.attribute);
       await Stock.findOneAndUpdate(
-        { symbol: row.attribute },
+        { symbol },
         {
           $set: {
             price: Number(row.price) || 0,
@@ -37,7 +39,6 @@ async function updateStocksFromSheet() {
       );
 
       count++;
-      console.log(`📈 ${row.attribute} → ₹${row.price}`);
     }
 
     console.log(`✅ Stocks updated from sheet: ${count} rows`);
@@ -53,3 +54,7 @@ function startSheetUpdater() {
 }
 
 module.exports = { updateStocksFromSheet, startSheetUpdater };
+
+function cleanSymbol(raw) {
+  return raw.replace(/^.*:/, "");
+}

@@ -1,67 +1,65 @@
 import { useState } from "react";
-import { TradeAPI } from "../services/api";
+import WatchlistSearch from "./WatchlistSearch";
+import { DoughnutChart } from "./DoughnutChart";
 import { useGeneralContext } from "./GeneralContext";
+import { toast } from "react-toastify";
 
-const BuyActionWindow = ({ symbol, price, onClose }) => {
-  const { setHoldings, setWallet, transactions, setTransactions } = useGeneralContext();
-  const [qty, setQty] = useState(1);
-  const [loading, setLoading] = useState(false);
+const WatchList = () => {
+  const { portfolio } = useGeneralContext();
+  const [activeSearchSymbols, setActiveSearchSymbols] = useState([]);
 
-  const handleAction = async (type) => {
-    setLoading(true);
-    try {
-      const payload = { symbol, qty, price };
-      const res = type === "BUY" ? await TradeAPI.buy(payload) : await TradeAPI.sell(payload);
+  // fallback to [] if backend sends duplicates
+  const watchlist = [...new Map((portfolio?.watchlist || []).map(s => [s.symbol, s])).values()];
 
-      setHoldings(res.data?.holdings || []);
-      if (res.data?.portfolio) setWallet(res.data.portfolio.totalValue ?? 0);
-      if (res.data?.transaction) setTransactions([res.data.transaction, ...(transactions || [])]);
-
-      console.log(`✅ ${type} successful`, res.data);
-      onClose?.();
-    } catch (err) {
-      console.error(`❌ ${type} failed:`, err);
-      alert(err?.response?.data?.message || "Order failed");
-    } finally {
-      setLoading(false);
+  const handleAddToWatchlist = (stock) => {
+    if (!watchlist.some((s) => s.symbol === stock.symbol)) {
+      console.log("🔔 Added via search:", stock);
+      // You’ll probably trigger backend API here to persist
+      toast.success(`✅ Added ${stock.symbol} to Watchlist`);
+    } else {
+      toast.info(`ℹ️ ${stock.symbol} is already in your Watchlist`);
     }
   };
 
-  if (!symbol) return null;
-
   return (
-    <div className="fixed bottom-5 right-5 w-80 p-4 bg-white rounded shadow-lg border">
-      <h2 className="text-lg font-semibold mb-2">{symbol}</h2>
-      <p className="mb-3">Price: ₹{Number(price ?? 0).toLocaleString()}</p>
-      <label className="block text-sm mb-1">Quantity</label>
-      <input
-        type="number"
-        min="1"
-        value={qty}
-        onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
-        className="border p-2 w-full mb-4 rounded"
-      />
-      <div className="flex gap-2 justify-end">
-        <button
-          onClick={() => handleAction("BUY")}
-          disabled={loading}
-          className="px-3 py-1 bg-green-600 text-white rounded"
-        >
-          Buy
-        </button>
-        <button
-          onClick={() => handleAction("SELL")}
-          disabled={loading}
-          className="px-3 py-1 bg-red-600 text-white rounded"
-        >
-          Sell
-        </button>
-        <button onClick={onClose} className="px-3 py-1 border rounded">
-          Cancel
-        </button>
+    <div className="h-full flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+      
+      {/* 🔍 Search Bar */}
+      <div className="p-2 border-b border-gray-200">
+        <WatchlistSearch
+          onAdd={handleAddToWatchlist}
+          setActiveSearchSymbols={setActiveSearchSymbols}
+        />
+      </div>
+
+      {/* 📋 Watchlist Items */}
+      <div className="flex-1 overflow-y-auto p-3">
+        {watchlist.length === 0 ? (
+          <p className="text-gray-500 text-sm">No stocks in watchlist</p>
+        ) : (
+          <ul className="space-y-2">
+            {watchlist.map((stock) => (
+              <li
+                key={stock.symbol}
+                className="flex justify-between items-center p-2 border rounded-lg hover:bg-gray-50"
+              >
+                <div>
+                  <p className="font-medium">{stock.name}</p>
+                  <p className="text-xs text-gray-500">{stock.symbol}</p>
+                </div>
+                <p className="text-sm font-semibold">₹{stock.price}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* 📊 Doughnut Chart */}
+      <div className="h-1/3 border-t border-gray-200 p-3">
+        <DoughnutChart watchlist={watchlist} />
       </div>
     </div>
   );
 };
 
-export default BuyActionWindow;
+export default WatchList;

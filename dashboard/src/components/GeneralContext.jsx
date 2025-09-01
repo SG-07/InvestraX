@@ -8,6 +8,7 @@ export const GeneralContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [wallet, setWallet] = useState(0);
   const [holdings, setHoldings] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [portfolio, setPortfolio] = useState({});
 
@@ -24,17 +25,23 @@ export const GeneralContextProvider = ({ children }) => {
     setSelectedStock({ symbol: null, price: null });
   };
 
+  // ✅ unified fetch method
+  const refreshPortfolio = async () => {
+    try {
+      const { data } = await PortfolioAPI.summary();
+      setPortfolio(data);
+      setWallet(data.totalValue ?? 0);
+
+      if (data.holdings) setHoldings(data.holdings);
+      if (data.positions) setPositions(data.positions);
+      if (data.transactions) setTransactions(data.transactions);
+    } catch (err) {
+      console.error("Failed to load portfolio summary:", err.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchPortfolio = async () => {
-      try {
-        const { data } = await PortfolioAPI.summary();
-        setPortfolio(data);
-        setWallet(data.totalValue ?? 0);
-      } catch (err) {
-        console.error("Failed to load portfolio summary:", err.message);
-      }
-    };
-    fetchPortfolio();
+    refreshPortfolio();
   }, []);
 
   return (
@@ -43,10 +50,12 @@ export const GeneralContextProvider = ({ children }) => {
         user, setUser,
         wallet, setWallet,
         holdings, setHoldings,
+        positions, setPositions,
         portfolio, setPortfolio,
         transactions, setTransactions,
         isBuyWindowOpen, selectedStock,
         openBuyWindow, closeBuyWindow,
+        refreshPortfolio,   // ✅ exposed
       }}
     >
       {children}

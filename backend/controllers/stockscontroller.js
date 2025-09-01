@@ -9,7 +9,14 @@ function escapeRegExp(str = "") {
 // 📌 List stocks with filter, pagination, and sorting
 exports.list = async (req, res) => {
   try {
-    const { category, q, page = 1, limit = 50, sort = "name", order = "asc" } = req.query;
+    const {
+      category,
+      q,
+      page = 1,
+      limit = 100,
+      sort = "name",
+      order = "asc",
+    } = req.query;
 
     const filter = {};
     if (category) {
@@ -25,18 +32,27 @@ exports.list = async (req, res) => {
       filter.$or = [{ symbol: rx }, { name: rx }];
     }
 
-    const sortMap = { name: "name", symbol: "symbol", price: "price", updated: "updatedAt" };
+    const sortMap = {
+      name: "name",
+      symbol: "symbol",
+      price: "price",
+      updated: "updatedAt",
+    };
     const sortField = sortMap[sort] || "name";
     const sortOrder = String(order).toLowerCase() === "desc" ? -1 : 1;
 
     const skip = (Math.max(1, +page) - 1) * Math.max(1, +limit);
 
     const [items, total] = await Promise.all([
-      Stocks.find(filter).sort({ [sortField]: sortOrder }).skip(skip).limit(+limit).lean(),
+      Stocks.find(filter)
+        .sort({ [sortField]: sortOrder })
+        .skip(skip)
+        .limit(+limit)
+        .lean(),
       Stocks.countDocuments(filter),
     ]);
 
-    res.json({
+    const response = {
       data: items.map(formatStockData),
       meta: {
         total,
@@ -44,9 +60,20 @@ exports.list = async (req, res) => {
         limit: +limit,
         pages: Math.ceil(total / +limit),
       },
+    };
+
+    console.log("📊 [List] Filter:", filter);
+    console.log("📤 [List] Sending response:", {
+      count: response.data.length,
+      meta: response.meta,
     });
+
+    res.json(response);
   } catch (err) {
-    res.status(500).json({ error: "Error fetching stocks", details: err.message });
+    console.error("❌ [List] Error:", err.message);
+    res
+      .status(500)
+      .json({ error: "Error fetching stocks", details: err.message });
   }
 };
 
@@ -54,12 +81,25 @@ exports.list = async (req, res) => {
 exports.getOne = async (req, res) => {
   try {
     const rx = new RegExp("^" + escapeRegExp(req.params.symbol) + "$", "i");
-    const stock = await Stocks.findOne({ symbol: rx });
-    if (!stock) return res.status(404).json({ error: "Not found" });
+    const stock = await Stocks.findOne({ symbol: rx }).lean();
 
-    res.json({ data: formatStockData(stock) });
+    console.log("📊 [GetOne] Symbol query:", req.params.symbol);
+    console.log("📊 [GetOne] Raw DB result:", stock);
+
+    if (!stock) {
+      console.log("⚠️ [GetOne] Stock not found");
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const response = { data: formatStockData(stock) };
+    console.log("📤 [GetOne] Sending response:", response);
+
+    res.json(response);
   } catch (err) {
-    res.status(500).json({ error: "Error fetching stock", details: err.message });
+    console.error("❌ [GetOne] Error:", err.message);
+    res
+      .status(500)
+      .json({ error: "Error fetching stock", details: err.message });
   }
 };
 
@@ -67,20 +107,36 @@ exports.getOne = async (req, res) => {
 exports.categories = async (_req, res) => {
   try {
     const cats = await Stocks.distinct("category");
-    res.json({ data: cats.sort() });
+    const response = { data: cats.sort() };
+
+    console.log("📊 [Categories] Found categories:", response.data);
+
+    res.json(response);
   } catch (err) {
-    res.status(500).json({ error: "Error fetching categories", details: err.message });
+    console.error("❌ [Categories] Error:", err.message);
+    res
+      .status(500)
+      .json({ error: "Error fetching categories", details: err.message });
   }
 };
 
 // 📌 Get Sensex (special symbol)
 exports.getSensex = async (_req, res) => {
   try {
-    const sensex = await Stocks.findOne({ symbol: "INDEXBOM:SENSEX" }).sort({ updatedAt: -1 });
-    if (!sensex) return res.status(404).json({ error: "Sensex data not found" });
+    const sensex = await Stocks.findOne({ symbol: "SENSEX" })
+      .sort({ updatedAt: -1 })
+      .lean();
 
-    res.json({ success: true, data: sensex });
+    if (!sensex) {
+      console.log("⚠️ [Sensex] No data found in DB");
+      return res.status(404).json({ error: "Sensex data not found" });
+    }
+
+    const response = { success: true, data: sensex };
+
+    res.json(response);
   } catch (err) {
+    console.error("❌ [Sensex] Error:", err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -88,12 +144,20 @@ exports.getSensex = async (_req, res) => {
 // 📌 Get Nifty (special symbol)
 exports.getNifty = async (_req, res) => {
   try {
-    const nifty = await Stocks.findOne({ symbol: "INDEXNSE:NIFTY_50" }).sort({ updatedAt: -1 });
-    if (!nifty) return res.status(404).json({ error: "Nifty data not found" });
+    const nifty = await Stocks.findOne({ symbol: "NIFTY_50" })
+      .sort({ updatedAt: -1 })
+      .lean();
 
-    res.json({ success: true, data: nifty });
+    if (!nifty) {
+      console.log("⚠️ [Nifty] No data found in DB");
+      return res.status(404).json({ error: "Nifty data not found" });
+    }
+
+    const response = { success: true, data: nifty };
+
+    res.json(response);
   } catch (err) {
+    console.error("❌ [Nifty] Error:", err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 };
-

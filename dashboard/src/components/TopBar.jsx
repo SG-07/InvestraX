@@ -21,6 +21,8 @@ const TopBar = () => {
   });
 
   const fetchMarketData = async () => {
+    console.log("📡 Fetching market data...");
+
     try {
       const [niftyRes, sensexRes] = await Promise.all([
         StocksAPI.nifty(),
@@ -34,7 +36,7 @@ const TopBar = () => {
       const sensexChange = sensexRes.data?.data?.change ?? 0;
 
       // Nifty update
-      setNifty({
+      setNifty(() => ({
         price: niftyPrice,
         lastNonZeroChange: niftyChange,
         flash:
@@ -45,10 +47,10 @@ const TopBar = () => {
             : "text-gray-700",
         animate: niftyChange !== 0,
         arrowFlash: niftyChange !== 0,
-      });
+      }));
 
       // Sensex update
-      setSensex({
+      setSensex(() => ({
         price: sensexPrice,
         lastNonZeroChange: sensexChange,
         flash:
@@ -59,19 +61,26 @@ const TopBar = () => {
             : "text-gray-700",
         animate: sensexChange !== 0,
         arrowFlash: sensexChange !== 0,
-      });
+      }));
     } catch (err) {
       console.error("❌ Failed to fetch market data:", err);
     }
   };
 
   useEffect(() => {
+    console.log("🟢 TopBar mounted. Starting market data fetch...");
     fetchMarketData();
     const interval = setInterval(fetchMarketData, 10000);
-    return () => clearInterval(interval);
+
+    return () => {
+      console.log("🔴 TopBar unmounted. Clearing interval...");
+      clearInterval(interval);
+    };
   }, []);
 
-  const formatValue = (val) => (val !== null ? val.toFixed(2) : "--");
+  const formatValue = (val) => {
+    return val !== null ? val.toFixed(2) : "--";
+  };
 
   const renderChange = (lastNonZeroChange, arrowFlash) => {
     if (lastNonZeroChange > 0)

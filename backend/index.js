@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const helmet = require("helmet");
 const morgan = require("morgan");
-
+const symbolMiddleware = require("./middleware/trimsymbol");
 const { isLoggedIn } = require("./middleware/authmiddleware");
 const { updateStocksFromSheet, startSheetUpdater } = require("./services/updater");
 
@@ -62,6 +62,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(symbolMiddleware);
 
 // ------------ MongoDB Connection ------------
 mongoose

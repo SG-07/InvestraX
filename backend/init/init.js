@@ -1,12 +1,12 @@
 require("dotenv").config({ path: "./config/.env" });
-const mongoose = require("mongoose");
-const initData = require("./data");
-const { HoldingsModel } = require("./model/holdingsmodel");
+console.log("MONGODB_URL from env:", process.env.MONGO_URL);
 
-const { PositionsModel } = require("./model/positionsmodel");
+const mongoose = require("mongoose");
+const initData = require("./companies");
+const Stocks = require("../models/stocksmodel");
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGO_URL)
   .then(() =>
     console.log(
       "Connected to MongoDB and using database:",
@@ -29,11 +29,11 @@ process.on("SIGINT", async () => {
 
 const initDB = async () => {
   mongoose.connection.once("open", async () => {
-    console.log("Connected to MongoDB, now adding listings...");
-    await Listing.deleteMany({});
-    await Listing.insertMany(initData.data);
+    console.log("Connected to MongoDB, now adding stocks...");
+    await Stocks.deleteMany({});
+    await Stocks.insertMany(initData);
     console.log("data was initialized");
-    console.log("Listings addd successfully.");
+    console.log("Stocks added successfully.");
   });
 };
 
