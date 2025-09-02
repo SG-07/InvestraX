@@ -1,4 +1,5 @@
 const Portfolio = require("../models/portfoliomodel");
+const Stocks = require("../models/stocksmodel"); 
 
 // ----------------------
 // Helpers
@@ -93,25 +94,43 @@ exports.buyStock = async (req, res) => {
 // SELL stock
 exports.sellStock = async (req, res) => {
   try {
-    const { symbol, quantity, price, type } = req.body;
-    if (!symbol || !quantity || !price || quantity <= 0 || price <= 0 || !type) {
-      return res.status(400).json({ message: "symbol, quantity, price, and type (L/S) are required" });
+    const { symbol, quantity, type } = req.body;
+    if (!symbol || !quantity || quantity <= 0 || !type) {
+      console.warn("⚠️ Invalid request payload:", req.body);
+      return res.status(400).json({ message: "symbol, quantity, and type (L/S) are required" });
+    }
+
+    if (!req.user || !req.user._id) {
+      console.error("❌ req.user is missing. Auth middleware not attaching user?");
+      return res.status(401).json({ message: "Unauthorized - user not found" });
     }
 
     const userId = req.user._id;
     const portfolio = await getOrCreatePortfolio(userId);
 
     let arr;
-    if (type === "L") arr = portfolio.holdings;
-    else if (type === "S") arr = portfolio.positions;
-    else return res.status(400).json({ message: "Invalid type. Use 'L' or 'S'" });
+    if (type === "L") arr = portfolio.holdings || [];
+    else if (type === "S") arr = portfolio.positions || [];
+    else {
+      console.warn("⚠️ Invalid type provided:", type);
+      return res.status(400).json({ message: "Invalid type. Use 'L' or 'S'" });
+    }
 
     const item = arr.find(x => x.symbol === symbol);
     if (!item || item.qty < quantity) {
+      console.warn(`⚠️ Not enough shares to sell. Found:`, item);
       return res.status(400).json({ message: "Not enough shares to sell" });
     }
 
-    const proceeds = quantity * price;
+    const stock = await Stocks.findOne({ symbol }).lean();
+    if (!stock) {
+      console.error("❌ Stock not found in DB:", symbol);
+      return res.status(404).json({ message: "Stock data not found" });
+    }
+
+    const ltp = stock.price ?? 0;
+
+    const proceeds = quantity * ltp;
     item.qty -= quantity;
     if (item.qty === 0) {
       arr.splice(arr.indexOf(item), 1);
@@ -124,7 +143,7 @@ exports.sellStock = async (req, res) => {
       type: "SELL",
       symbol,
       qty: quantity,
-      price,
+      price: ltp, // ✅ backend price
       amount: proceeds,
       category: type,
       date: new Date(),

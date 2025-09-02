@@ -296,3 +296,45 @@ exports.breakdown = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch breakdown" });
   }
 };
+
+/* ---------------- SELL INFO ---------------- */
+exports.sellInfo = async (req, res) => {
+  try {
+    const { symbol, type } = req.params; // type = 'holding' | 'position'
+    const portfolio = await Portfolio.findOne({ userId: req.user._id }).lean();
+    if (!portfolio) return res.status(404).json({ message: "Portfolio not found" });
+
+    let item;
+    if (type === "holding") {
+      item = portfolio.holdings.find(h => h.symbol === symbol);
+    } else if (type === "position") {
+      item = portfolio.positions.find(p => p.symbol === symbol);
+    }
+
+    if (!item) return res.status(404).json({ message: `${type} not found` });
+
+    const stock = await Stocks.findOne({ symbol: symbol }).lean();
+    if (!stock) return res.status(404).json({ message: "Stock data not found" });
+
+    const ltp = stock.price ?? 0;
+    const currentValue = +(ltp * item.qty).toFixed(2);
+    const investedValue = +(item.avg * item.qty).toFixed(2);
+    const profitLoss = +(currentValue - investedValue).toFixed(2);
+    const profitLossPct = investedValue > 0 ? +((profitLoss / investedValue) * 100).toFixed(2) : 0;
+
+    res.json({
+      symbol: item.symbol,
+      name: stock?.name ?? item.symbol,
+      qty: item.qty,
+      avgBuyPrice: item.avg,
+      currentPrice: ltp,
+      currentValue,
+      investedValue,
+      profitLoss,
+      profitLossPct
+    });
+  } catch (err) {
+    console.error("❌ Error in sell info:", err);
+    res.status(500).json({ message: "Failed to fetch sell info" });
+  }
+};

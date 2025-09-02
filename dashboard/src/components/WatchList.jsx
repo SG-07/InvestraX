@@ -146,8 +146,7 @@ export default function WatchList() {
       )}
       {sellWindow.open && (
         <SellActionWindow
-          symbol={sellWindow.stock.symbol}
-          price={sellWindow.stock.price}
+          stock={sellWindow.stock}
           onClose={closeSellWindow}
         />
       )}
