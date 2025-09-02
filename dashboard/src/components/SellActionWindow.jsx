@@ -72,7 +72,9 @@ export default function SellActionWindow({ stock, onClose }) {
       }
 
       toast.success(
-        `✅ Sold ${quantity} of ${stock.symbol} (${investmentType === "long" ? "Holding" : "Position"})`
+        `✅ Sold ${quantity} of ${stock.symbol} (${
+          investmentType === "long" ? "Holding" : "Position"
+        })`
       );
       onClose?.();
     } catch (err) {
@@ -112,6 +114,12 @@ export default function SellActionWindow({ stock, onClose }) {
               >
                 Long-Term Holding
               </button>
+              <button
+                onClick={onClose}
+                className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg shadow-md hover:bg-gray-400 hover:text-white"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         )}
@@ -127,7 +135,8 @@ export default function SellActionWindow({ stock, onClose }) {
         {investmentType && !infoLoading && sellInfo && availableQty === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6">
             <p className="text-lg text-red-600 font-medium">
-              ⚠️ No available quantity to sell for this {investmentType === "long" ? "holding" : "position"}.
+              ⚠️ No available quantity to sell for this{" "}
+              {investmentType === "long" ? "holding" : "position"}.
             </p>
             <button
               onClick={onClose}
@@ -143,22 +152,38 @@ export default function SellActionWindow({ stock, onClose }) {
           <>
             <div className="p-6 space-y-6 flex-1 overflow-y-auto">
               <div className="bg-gray-100 p-4 rounded-lg">
-                <p><span className="font-semibold">Available Qty:</span> {sellInfo.qty}</p>
-                <p><span className="font-semibold">Avg Buy Price:</span> ₹{sellInfo.avgBuyPrice}</p>
-                <p><span className="font-semibold">Current Price:</span> ₹{sellInfo.currentPrice}</p>
-                <p><span className="font-semibold">P/L:</span> ₹{sellInfo.profitLoss} ({sellInfo.profitLossPct}%)</p>
+                <p>
+                  <span className="font-semibold">Available Qty:</span>{" "}
+                  {sellInfo.qty}
+                </p>
+                <p>
+                  <span className="font-semibold">Avg Buy Price:</span> ₹
+                  {sellInfo.avgBuyPrice}
+                </p>
+                <p>
+                  <span className="font-semibold">Current Price:</span> ₹
+                  {sellInfo.currentPrice}
+                </p>
+                <p>
+                  <span className="font-semibold">P/L:</span> ₹
+                  {sellInfo.profitLoss} ({sellInfo.profitLossPct}%)
+                </p>
               </div>
 
               <div className="flex justify-between gap-4">
                 <fieldset className="border border-gray-300 flex-1 rounded-lg">
-                  <legend className="ml-2 text-sm px-1 text-gray-600">Quantity</legend>
+                  <legend className="ml-2 text-sm px-1 text-gray-600">
+                    Quantity
+                  </legend>
                   <input
                     type="number"
                     min="1"
                     max={availableQty}
                     className="w-full px-3 py-2 text-lg outline-none rounded-lg"
                     value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                    onChange={(e) =>
+                      setQuantity(Math.max(1, Number(e.target.value)))
+                    }
                   />
                 </fieldset>
               </div>
@@ -166,7 +191,8 @@ export default function SellActionWindow({ stock, onClose }) {
 
             <div className="flex justify-between items-center px-6 py-4 border-t">
               <span className="text-sm text-gray-600">
-                Expected Credit ₹{(quantity * (sellInfo?.currentPrice || 0)).toFixed(2)}
+                Expected Credit ₹
+                {(quantity * (sellInfo?.currentPrice || 0)).toFixed(2)}
               </span>
               <div className="flex space-x-2">
                 <button

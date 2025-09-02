@@ -47,14 +47,8 @@ exports.summary = async (req, res) => {
 
       // 🔍 Debug logs
       console.log("---- Holding Debug ----");
-      console.log("Symbol:", h.symbol);
-      console.log("Qty:", h.qty);
-      console.log("Avg:", h.avg);
-      console.log("LTP:", ltp);
-      console.log("Invested:", inv);
-      console.log("Current:", curVal);
-      console.log("Net P&L:", net);
-      console.log("Day P&L:", day);
+      console.log("Symbol:", h.symbol, "Qty:", h.qty, "Avg:", h.avg);
+      console.log("LTP:", ltp, "Invested:", inv, "Current:", curVal, "Net P&L:", net, "Day P&L:", day);
 
       holdingsOut.push({
         symbol: h.symbol,
@@ -85,14 +79,8 @@ exports.summary = async (req, res) => {
 
       // 🔍 Debug logs
       console.log("---- Position Debug ----");
-      console.log("Symbol:", p.symbol);
-      console.log("Qty:", p.qty);
-      console.log("Avg:", p.avg);
-      console.log("LTP:", ltp);
-      console.log("Invested:", inv);
-      console.log("Current:", curVal);
-      console.log("Net P&L:", net);
-      console.log("Day P&L:", day);
+      console.log("Symbol:", p.symbol, "Qty:", p.qty, "Avg:", p.avg);
+      console.log("LTP:", ltp, "Invested:", inv, "Current:", curVal, "Net P&L:", net, "Day P&L:", day);
 
       positionsOut.push({
         symbol: p.symbol,
@@ -112,23 +100,20 @@ exports.summary = async (req, res) => {
     const watchlistOut = [];
     for (const w of portfolio.watchlist || []) {
       const s = await Stocks.findOne({ symbol: w.symbol }).lean();
-      if (s) {
-        // 🔍 Debug logs
-        console.log("---- Watchlist Debug ----");
-        console.log("Symbol:", s.symbol);
-        console.log("Price:", s.price);
-        console.log("Change:", s.change);
-        console.log("Change%:", s.changepct);
+      if (!s) continue;
 
-        watchlistOut.push({
-          symbol: s.symbol,
-          name: s.name,
-          price: s.price ?? 0,
-          change: s.change ?? 0,
-          changepct: s.changepct ?? 0,
-          isDown: (s.change ?? 0) < 0,
-        });
-      }
+      // 🔍 Debug logs
+      console.log("---- Watchlist Debug ----");
+      console.log("Symbol:", s.symbol, "Price:", s.price, "Change:", s.change, "Change%:", s.changepct);
+
+      watchlistOut.push({
+        symbol: s.symbol,
+        name: s.name,
+        price: s.price ?? 0,
+        change: s.change ?? 0,
+        changepct: s.changepct ?? 0,
+        isDown: (s.change ?? 0) < 0,
+      });
     }
 
     const profitLoss = currentValue - investedValue;
@@ -143,6 +128,12 @@ exports.summary = async (req, res) => {
     console.log("Net P&L:", profitLoss);
     console.log("Net P&L %:", profitLossPct);
 
+    // convert transaction dates before sending
+    const transactionsOut = (portfolio.transactions || []).map(tx => ({
+      ...tx,
+      date: tx.date instanceof Date ? tx.date.toISOString() : tx.date
+    }));
+
     res.json({
       balance: +portfolio.balance.toFixed(2),
       investedValue: +investedValue.toFixed(2),
@@ -153,7 +144,7 @@ exports.summary = async (req, res) => {
       holdings: holdingsOut,
       positions: positionsOut,
       watchlist: watchlistOut,
-      transactions: portfolio.transactions?.slice(-10).reverse() || [],
+      transactions: transactionsOut.slice(-10).reverse(),
     });
   } catch (err) {
     console.error("❌ Error in portfolio summary:", err);
@@ -203,18 +194,6 @@ exports.holdings = async (req, res) => {
       const investedValue = h.avg * h.qty;
       const currentValue = ltp * h.qty;
       const net = currentValue - investedValue;
-
-      // 🔍 Debug logs
-      console.log("------ Holding Debug ------");
-      console.log("Symbol:", h.symbol);
-      console.log("Qty:", h.qty);
-      console.log("Avg:", h.avg);
-      console.log("Price (ltp):", ltp);
-      console.log("Invested:", investedValue);
-      console.log("Current:", currentValue);
-      console.log("Net P&L:", net);
-      console.log("Day change:", change * h.qty);
-      console.log("Day %:", changepct);
 
       return {
         symbol: h.symbol,
