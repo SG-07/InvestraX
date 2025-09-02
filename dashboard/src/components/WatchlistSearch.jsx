@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PortfolioAPI } from "../services/api";
+import { StocksAPI } from "../services/api";
 
 export default function WatchlistSearch({ onAddStock, existingSymbols }) {
   const [query, setQuery] = useState("");
@@ -10,7 +10,7 @@ export default function WatchlistSearch({ onAddStock, existingSymbols }) {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const res = await PortfolioAPI.searchStock(query.trim());
+      const res = await StocksAPI.getOne(query.trim());
       setResults(res.data || []);
     } catch (err) {
       console.error("❌ Stock search failed:", err);
