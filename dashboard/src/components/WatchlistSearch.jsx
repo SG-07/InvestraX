@@ -1,72 +1,73 @@
-import { useState, useEffect } from "react";
-import { StocksAPI } from "../services/api";
+import { useState } from "react";
+import { PortfolioAPI } from "../services/api";
 
-const WatchlistSearch = ({ onAdd, setActiveSearchSymbols }) => {
-  const [searchName, setSearchName] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+export default function WatchlistSearch({ onAddStock, existingSymbols }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // 🔍 Search as user types
-  useEffect(() => {
-    if (!searchName.trim()) {
-      setSearchResults([]);
-      return; // ❌ don't touch setActiveSearchSymbols here
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    try {
+      const res = await PortfolioAPI.searchStock(query.trim());
+      setResults(res.data || []);
+    } catch (err) {
+      console.error("❌ Stock search failed:", err);
+    } finally {
+      setLoading(false);
     }
-
-    const delayDebounce = setTimeout(async () => {
-      try {
-        const res = await StocksAPI.list({ query: searchName.trim() });
-
-        const resultsWithTimer = (res.data?.data || []).map((stock) => ({
-          ...stock,
-          timer: 10,
-        }));
-
-        setSearchResults(resultsWithTimer);
-      } catch (err) {
-        console.error("❌ Failed to search company:", err);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchName]);
-
-  // ✅ Keep active symbols synced after searchResults update
-  useEffect(() => {
-    setActiveSearchSymbols(searchResults.map((s) => s.symbol));
-  }, [searchResults, setActiveSearchSymbols]);
+  };
 
   const handleAdd = (stock) => {
-    onAdd(stock);
-    setSearchName(""); // clear input after adding
-    setSearchResults([]);
+    // 🚫 Prevent duplicates
+    if (existingSymbols.includes(stock.symbol)) {
+      alert(`${stock.name} is already in your watchlist!`);
+      return;
+    }
+    onAddStock(stock); // ✅ just call the parent handler
   };
 
   return (
-    <div className="p-4">
-      <input
-        type="text"
-        className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
-        placeholder="Search company..."
-        value={searchName}
-        onChange={(e) => setSearchName(e.target.value)}
-      />
+    <div className="p-2">
+      <div className="flex gap-2 mb-2">
+        <input
+          type="text"
+          placeholder="Search stocks..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="border rounded p-1 flex-1"
+        />
+        <button
+          onClick={handleSearch}
+          disabled={loading}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          {loading ? "Searching..." : "Search"}
+        </button>
+      </div>
 
-      {searchResults.length > 0 && (
-        <ul className="mt-3 border border-gray-200 rounded-lg bg-white shadow-md">
-          {searchResults.map((stock) => (
+      {results.length > 0 && (
+        <ul className="border rounded divide-y max-h-48 overflow-y-auto">
+          {results.map((stock) => (
             <li
               key={stock.symbol}
-              className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleAdd(stock)}
+              className="flex justify-between items-center p-2 hover:bg-gray-50"
             >
-              <span className="font-medium">{stock.name}</span>
-              <span className="text-sm text-gray-500">{stock.symbol}</span>
+              <span>
+                {stock.name} ({stock.symbol})
+              </span>
+              <button
+                onClick={() => handleAdd(stock)}
+                className="text-green-600 hover:underline"
+              >
+                + Add
+              </button>
             </li>
           ))}
         </ul>
       )}
     </div>
   );
-};
+}
 
-export default WatchlistSearch;
