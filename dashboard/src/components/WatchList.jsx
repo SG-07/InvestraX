@@ -4,10 +4,11 @@ import WatchlistSearch from "./WatchlistSearch";
 import { DoughnutChart } from "./DoughnutChart";
 import { toast } from "react-toastify";
 import SellActionWindow from "./SellActionWindow";
+import BuyActionWindow from "./BuyActionWindow"; // ✅ import Buy window
 import { PortfolioAPI } from "../services/api";
 
 export default function WatchList() {
-  const { portfolio, openBuyWindow } = useGeneralContext();
+  const { portfolio } = useGeneralContext();
   const [localWatchlist, setLocalWatchlist] = useState([]);
   const [activeSearchSymbols, setActiveSearchSymbols] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -29,7 +30,7 @@ export default function WatchList() {
         ).values(),
       ];
       setLocalWatchlist(uniqueStocks);
-      setCurrentPage(0); // reset page if watchlist changes
+      setCurrentPage(0);
     }
   }, [portfolio]);
 
@@ -57,8 +58,13 @@ export default function WatchList() {
     }
   };
 
-  // 🪙 Sell window
+  // 🪙 Buy + Sell windows
+  const [buyWindow, setBuyWindow] = useState({ open: false, stock: null });
   const [sellWindow, setSellWindow] = useState({ open: false, stock: null });
+
+  const openBuyWindow = (stock) => setBuyWindow({ open: true, stock });
+  const closeBuyWindow = () => setBuyWindow({ open: false, stock: null });
+
   const openSellWindow = (stock) => setSellWindow({ open: true, stock });
   const closeSellWindow = () => setSellWindow({ open: false, stock: null });
 
@@ -82,9 +88,9 @@ export default function WatchList() {
         </div>
       </div>
 
-      {/* Main body divided into 2 parts: 2/3 for list + 1/3 for chart */}
+      {/* Main body: list + chart */}
       <div className="flex-1 flex flex-col">
-        {/* 📋 Watchlist + Pagination (2/3 space) */}
+        {/* 📋 Watchlist + Pagination */}
         <div className="flex-[2] flex flex-col overflow-hidden">
           <ul className="flex-1 overflow-y-auto">
             {paginatedStocks.length === 0 ? (
@@ -104,7 +110,7 @@ export default function WatchList() {
             )}
           </ul>
 
-          {/* 🔄 Pagination controls */}
+          {/* 🔄 Pagination */}
           <div className="flex justify-between items-center p-2 border-t border-gray-200 bg-white">
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 0))}
@@ -128,13 +134,16 @@ export default function WatchList() {
           </div>
         </div>
 
-        {/* 📊 Doughnut Chart (1/3 space) */}
+        {/* 📊 Doughnut Chart */}
         <div className="flex-[1] p-3 border-t border-gray-200">
           <DoughnutChart watchlist={localWatchlist} />
         </div>
       </div>
 
-      {/* 🪙 Sell Action Window */}
+      {/* 🪙 Action Windows */}
+      {buyWindow.open && (
+        <BuyActionWindow stock={buyWindow.stock} onClose={closeBuyWindow} />
+      )}
       {sellWindow.open && (
         <SellActionWindow
           symbol={sellWindow.stock.symbol}
@@ -187,7 +196,7 @@ function WatchListItem({
       {showActions && (
         <div className="absolute inset-0 flex justify-end items-center bg-white bg-opacity-80 pr-4 space-x-2">
           <button
-            onClick={() => openBuyWindow(stock.symbol, stock.price)}
+            onClick={() => openBuyWindow(stock)}
             className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded"
           >
             Buy

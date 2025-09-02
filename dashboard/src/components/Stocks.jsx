@@ -27,33 +27,29 @@ const Stocks = () => {
     fetchStocks();
   }, []);
 
-  const handleAddWatchlist = async (symbol) => {
+  const handleAddWatchlist = async (stock) => {
     try {
-      const res = await PortfolioAPI.addWatchlist(symbol);
-      toast.success(`⭐ Added ${symbol} to Watchlist`, {
+      await PortfolioAPI.addWatchlist(stock.symbol);
+
+      toast.success(`⭐ Added ${stock.symbol} to Watchlist`, {
         position: "top-right",
       });
 
       setPortfolio((prev) => {
-        // ensure we don't add duplicates
-        const updatedWatchlist = Array.isArray(prev.watchlist)
-          ? [...new Set([...prev.watchlist, symbol])]
-          : [symbol];
-
-        return {
-          ...prev,
-          watchlist: updatedWatchlist,
-        };
+        const prevList = Array.isArray(prev.watchlist) ? prev.watchlist : [];
+        const alreadyExists = prevList.some(
+          (s) => (typeof s === "string" ? s : s.symbol) === stock.symbol
+        );
+        if (alreadyExists) return prev;
+        return { ...prev, watchlist: [...prevList, stock] };
       });
 
-      console.log("✅ Watchlist updated in context:", symbol);
+      console.log("✅ Watchlist updated in context:", stock);
     } catch (err) {
       console.error("❌ Watchlist add failed:", err);
       toast.error(
         err?.response?.data?.message || "Failed to add to watchlist",
-        {
-          position: "top-right",
-        }
+        { position: "top-right" }
       );
     }
   };
@@ -95,7 +91,7 @@ const Stocks = () => {
                     Buy
                   </button>
                   <button
-                    onClick={() => handleAddWatchlist(s.symbol)}
+                    onClick={() => handleAddWatchlist(s)}
                     className="px-2 py-1 bg-blue-600 text-white rounded"
                   >
                     Watchlist
@@ -113,7 +109,7 @@ const Stocks = () => {
         </tbody>
       </table>
 
-      {/* BuyActionWindow modal */}
+      {/* ✅ BuyActionWindow modal */}
       {selectedStock && (
         <BuyActionWindow
           stock={selectedStock}
