@@ -24,6 +24,7 @@ export const PortfolioAPI = {
   getWatchlist: () => API.get("/portfolio/watchlist"),
   addWatchlist: (symbol) => API.post("/portfolio/watchlist", { symbol }),
   removeWatchlist: (symbol) => API.delete(`/portfolio/watchlist/${symbol}`),
+  breakdown: () => API.get("/portfolio/breakdown"),
 };
 
 // ---------------------------- TRADES (buy / sell) ----------------------------

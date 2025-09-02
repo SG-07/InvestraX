@@ -22,4 +22,7 @@ router.delete("/watchlist/:symbol", isLoggedIn, ctrl.removeWatchlist);
 // 📌 Orders (alias for transactions)
 router.get("/orders", isLoggedIn, ctrl.orders);
 
+// 📌 Portfolio breakdown (for charts)
+router.get("/breakdown", isLoggedIn, ctrl.breakdown);
+
 module.exports = router;

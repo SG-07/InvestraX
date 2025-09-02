@@ -1,37 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Loading InvestraX...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-    h1 { font-size: 2rem; margin-bottom: 1rem; }
-    p { margin: 0.5rem 0; }
-    a { color: #38bdf8; text-decoration: none; font-weight: bold; }
-    a:hover { text-decoration: underline; }
-    #countdown { font-weight: bold; color: #38bdf8; }
-  </style>
-</head>
-<body>
-  <h1>🚀 InvestraX Backend is now live!</h1>
-  <p>The frontend will open automatically in <strong id="countdown">5</strong> seconds...</p>
-  <p>If not, <a id="fallback-link" href="<%= frontendUrl %>">click here to go to the app</a></p>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Loading InvestraX...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      p {
+        margin: 0.5rem 0;
+      }
+      a {
+        color: #38bdf8;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      #countdown {
+        font-weight: bold;
+        color: #38bdf8;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚀 InvestraX Backend is now live!</h1>
+    <p>
+      The frontend will open automatically in
+      <strong id="countdown">5</strong> seconds...
+    </p>
+    <p>
+      If not,
+      <a id="fallback-link" href="<%= frontendUrl %>"
+        >click here to go to the app</a
+      >
+    </p>
 
-  <!-- Store frontend URL in a data attribute -->
-  <div id="redirect-data" data-frontend-url="<%= frontendUrl %>"></div>
+    <!-- Store frontend URL in a data attribute -->
+    <div id="redirect-data" data-frontend-url="<%= frontendUrl %>"></div>
 
-  <!-- Include external script -->
-  <script src="/redirect.js"></script>
-</body>
+    <!-- Include external script -->
+    <script src="/redirect.js"></script>
+  </body>
 </html>

@@ -251,3 +251,48 @@ exports.orders = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 };
+
+
+/* ---------------- Stocks Breakdown ---------------- */
+exports.breakdown = async (req, res) => {
+  try {
+    const portfolio = await Portfolio.findOne({ userId: req.user._id }).lean();
+    if (!portfolio) return res.status(404).json({ message: "Portfolio not found" });
+
+    const allocations = [];
+    let totalValue = 0;
+
+    // Calculate current value of each holding
+    for (const h of portfolio.holdings) {
+      const s = await Stocks.findOne({ symbol: h.symbol }).lean();
+      if (!s) continue;
+
+      const ltp = s.price ?? 0;
+      const curVal = ltp * h.qty;
+      totalValue += curVal;
+
+      allocations.push({
+        symbol: h.symbol,
+        name: s?.name ?? h.symbol,
+        value: curVal,
+      });
+    }
+
+    // Convert to percentages
+    const breakdown = allocations.map(item => ({
+      symbol: item.symbol,
+      name: item.name,
+      value: +item.value.toFixed(2),
+      percentage: totalValue > 0 ? +((item.value / totalValue) * 100).toFixed(2) : 0
+    }));
+
+    res.json({
+      totalValue: +totalValue.toFixed(2),
+      breakdown
+    });
+
+  } catch (err) {
+    console.error("❌ Error in portfolio breakdown:", err);
+    res.status(500).json({ message: "Failed to fetch breakdown" });
+  }
+};
