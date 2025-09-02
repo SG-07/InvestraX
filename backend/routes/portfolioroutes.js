@@ -25,4 +25,8 @@ router.get("/orders", isLoggedIn, ctrl.orders);
 // 📌 Portfolio breakdown (for charts)
 router.get("/breakdown", isLoggedIn, ctrl.breakdown);
 
+// New sell info route
+router.get("/sellinfo/:type/:symbol", isLoggedIn, ctrl.sellInfo);
+
+
 module.exports = router;
