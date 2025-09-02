@@ -1,62 +1,116 @@
-import { useGeneralContext } from "./GeneralContext";
+import { useEffect, useState } from "react";
+import { PortfolioAPI } from "../services/api";
+import BuyActionWindow from "./BuyActionWindow";
+import SellActionWindow from "./SellActionWindow";
 
 const Holdings = () => {
-  const { holdings } = useGeneralContext();
-  const holdingsArray = Array.isArray(holdings) ? holdings : [];
+  const [holdingsArray, setHoldingsArray] = useState([]);
+  const [selectedBuy, setSelectedBuy] = useState(null);
+  const [selectedSell, setSelectedSell] = useState(null);
 
-  if (!holdingsArray.length)
-    return <p className="text-center mt-10 text-gray-500">No holdings yet</p>;
+  // Function to fetch holdings
+  const refreshHoldings = async () => {
+    try {
+      const res = await PortfolioAPI.holdings();
+      setHoldingsArray(res?.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching holdings:", error);
+    }
+  };
+
+  // Fetch holdings on mount
+  useEffect(() => {
+    refreshHoldings();
+  }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">📊 Your Holdings</h2>
-      <div className="w-full border border-gray-300 px-4 py-5">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-t border-b border-gray-200 text-sm text-right text-gray-500 font-light">
-              <th className="text-left px-2">Product</th>
-              <th className="text-left px-2">Instrument</th>
-              <th className="px-2">Qty.</th>
-              <th className="px-2">Avg.</th>
-              <th className="px-2">LTP</th>
-              <th className="px-2">P&amp;L</th>
-              <th className="px-2">Chg.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {holdingsArray.map((h, idx) => {
-              const qty = h.qty ?? 0;
-              const avg = h.avg ?? 0;
-              const ltp = h.price ?? 0;
-              const curValue = ltp * qty;
-              const invValue = avg * qty;
+    <div className="overflow-x-auto p-4">
+      <h2 className="text-lg font-semibold mb-4">Holdings</h2>
+      <table className="min-w-full border-collapse border border-gray-200 text-sm">
+        <thead className="bg-gray-100">
+          <tr className="text-gray-600 text-center">
+            <th className="p-2 text-left">Company</th>
+            <th className="p-2">Qty</th>
+            <th className="p-2">Avg</th>
+            <th className="p-2">Price</th>
+            <th className="p-2">Invested</th>
+            <th className="p-2">Current</th>
+            <th className="p-2">Net</th>
+            <th className="p-2">Day</th>
+            <th className="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {holdingsArray.map((h, idx) => {
+            const qty = Number(h.stocksQuantity) || 0;
+            const avg = Number(h.avg) || 0;
+            const price = Number(h.price) || 0;
 
-              const isProfit = curValue - invValue >= 0;
-              const profClass = isProfit ? "text-green-600" : "text-red-400";
-              const dayClass = h.isLoss ? "text-red-400" : "text-green-600";
+            const invested = h.investedValue ?? avg * qty;
+            const current = h.currentValue ?? price * qty;
+            const netPL = h.net ?? current - invested;
+            const isProfit = netPL >= 0;
 
-              return (
-                <tr
-                  key={idx}
-                  className="border-t border-b border-gray-200 text-sm text-right text-gray-700"
+            return (
+              <tr
+                key={idx}
+                className="border-t border-b border-gray-200 text-sm text-right text-gray-700"
+              >
+                <td className="text-left px-2">{h.company || h.symbol}</td>
+                <td className="px-2">{qty}</td>
+                <td className="px-2">{avg.toFixed(2)}</td>
+                <td className="px-2">{price.toFixed(2)}</td>
+                <td className="px-2">₹{invested.toFixed(2)}</td>
+                <td className="px-2">₹{current.toFixed(2)}</td>
+                <td
+                  className={`px-2 ${isProfit ? "text-green-600" : "text-red-500"}`}
                 >
-                  <td className="text-left px-2">CNC</td>
-                  <td className="text-left px-2">{h.name || h.symbol}</td>
-                  <td className="px-2">{qty}</td>
-                  <td className="px-2">{avg.toFixed(2)}</td>
-                  <td className="px-2">{ltp.toFixed(2)}</td>
-                  <td className={`px-2 ${profClass}`}>
-                    {(curValue - invValue).toFixed(2)}
-                  </td>
-                  <td className={`px-2 ${dayClass}`}>
-                    {(h.day ?? 0).toFixed(2)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  {netPL.toFixed(2)}
+                </td>
+                <td
+                  className={`px-2 ${
+                    (Number(h.dayPct) || 0) >= 0 ? "text-green-600" : "text-red-500"
+                  }`}
+                >
+                  {(Number(h.dayPct) || 0).toFixed(2)}%
+                </td>
+                <td className="px-2 space-x-2">
+                  <button
+                    onClick={() => setSelectedBuy(h)}
+                    className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    Buy
+                  </button>
+                  <button
+                    onClick={() => setSelectedSell(h)}
+                    className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Sell
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* Buy Window */}
+      {selectedBuy && (
+        <BuyActionWindow
+          stock={selectedBuy}
+          onClose={() => setSelectedBuy(null)}
+          onSuccess={refreshHoldings} // Refresh after buy
+        />
+      )}
+
+      {/* Sell Window */}
+      {selectedSell && (
+        <SellActionWindow
+          stock={selectedSell}
+          onClose={() => setSelectedSell(null)}
+          onSuccess={refreshHoldings} // Refresh after sell
+        />
+      )}
     </div>
   );
 };

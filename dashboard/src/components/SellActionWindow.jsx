@@ -22,7 +22,6 @@ export default function SellActionWindow({ stock, onClose }) {
 
   const availableQty = sellInfo?.qty || 0;
 
-  // Fetch sell info whenever user selects type
   useEffect(() => {
     const fetchSellInfo = async () => {
       if (!investmentType || !stock?.symbol) return;
@@ -58,12 +57,11 @@ export default function SellActionWindow({ stock, onClose }) {
     const payload = {
       symbol: stock.symbol,
       quantity,
-      type: investmentType === "long" ? "L" : "S", // ✅ backend expects this
+      type: investmentType === "long" ? "L" : "S",
     };
 
     try {
       setLoading(true);
-      console.log("🟠 Selling stock:", payload);
       const res = await TradeAPI.sell(payload);
 
       setHoldings(res.data?.holdings || []);
@@ -74,9 +72,7 @@ export default function SellActionWindow({ stock, onClose }) {
       }
 
       toast.success(
-        `✅ Sold ${quantity} of ${stock.symbol} (${
-          investmentType === "long" ? "Holding" : "Position"
-        })`
+        `✅ Sold ${quantity} of ${stock.symbol} (${investmentType === "long" ? "Holding" : "Position"})`
       );
       onClose?.();
     } catch (err) {
@@ -127,51 +123,47 @@ export default function SellActionWindow({ stock, onClose }) {
           </div>
         )}
 
-        {/* Step 3: Show sell form */}
-        {investmentType && !infoLoading && sellInfo && (
+        {/* Step 3: No stock available */}
+        {investmentType && !infoLoading && sellInfo && availableQty === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6">
+            <p className="text-lg text-red-600 font-medium">
+              ⚠️ No available quantity to sell for this {investmentType === "long" ? "holding" : "position"}.
+            </p>
+            <button
+              onClick={onClose}
+              className="bg-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-400 hover:text-white"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Step 4: Show sell form */}
+        {investmentType && !infoLoading && sellInfo && availableQty > 0 && (
           <>
             <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-              {/* Stock Info */}
               <div className="bg-gray-100 p-4 rounded-lg">
-                <p>
-                  <span className="font-semibold">Available Qty:</span>{" "}
-                  {sellInfo.qty}
-                </p>
-                <p>
-                  <span className="font-semibold">Avg Buy Price:</span> ₹
-                  {sellInfo.avgBuyPrice}
-                </p>
-                <p>
-                  <span className="font-semibold">Current Price:</span> ₹
-                  {sellInfo.currentPrice}
-                </p>
-                <p>
-                  <span className="font-semibold">P/L:</span> ₹
-                  {sellInfo.profitLoss} ({sellInfo.profitLossPct}%)
-                </p>
+                <p><span className="font-semibold">Available Qty:</span> {sellInfo.qty}</p>
+                <p><span className="font-semibold">Avg Buy Price:</span> ₹{sellInfo.avgBuyPrice}</p>
+                <p><span className="font-semibold">Current Price:</span> ₹{sellInfo.currentPrice}</p>
+                <p><span className="font-semibold">P/L:</span> ₹{sellInfo.profitLoss} ({sellInfo.profitLossPct}%)</p>
               </div>
 
-              {/* Quantity */}
               <div className="flex justify-between gap-4">
                 <fieldset className="border border-gray-300 flex-1 rounded-lg">
-                  <legend className="ml-2 text-sm px-1 text-gray-600">
-                    Quantity
-                  </legend>
+                  <legend className="ml-2 text-sm px-1 text-gray-600">Quantity</legend>
                   <input
                     type="number"
                     min="1"
                     max={availableQty}
                     className="w-full px-3 py-2 text-lg outline-none rounded-lg"
                     value={quantity}
-                    onChange={(e) =>
-                      setQuantity(Math.max(1, Number(e.target.value)))
-                    }
+                    onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
                   />
                 </fieldset>
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-between items-center px-6 py-4 border-t">
               <span className="text-sm text-gray-600">
                 Expected Credit ₹{(quantity * (sellInfo?.currentPrice || 0)).toFixed(2)}

@@ -20,7 +20,7 @@ const Funds = () => {
   const handleReset = async () => {
     if (!window.confirm("⚠️ Are you sure you want to reset your portfolio?")) return;
     try {
-      const res = await TradeAPI.resetAccount();
+      const res = await TradeAPI.reset();
       setWallet(res.data.balance ?? 0);
       setHoldings([]);
       setTransactions([]);
