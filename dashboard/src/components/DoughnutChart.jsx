@@ -12,14 +12,22 @@ export function DoughnutChart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await PortfolioAPI.breakdown(); 
-        const holdings = res.data.breakdown || [];
+        const res = await PortfolioAPI.breakdown();
+        console.log("📊 Raw Breakdown API Response (frontend):", res.data);
+
+        // Backend sends array directly
+        const holdings = Array.isArray(res.data) ? res.data : res.data.breakdown || [];
+        console.log("📊 Extracted Holdings:", holdings);
 
         if (holdings.length === 0) {
-          setData(null); // no holdings
+          console.warn("⚠️ No holdings found in breakdown response.");
+          setData(null);
         } else {
           const labels = holdings.map(h => h.symbol);
           const values = holdings.map(h => h.value);
+
+          console.log("✅ Chart Labels:", labels);
+          console.log("✅ Chart Values:", values);
 
           setData({
             labels,
