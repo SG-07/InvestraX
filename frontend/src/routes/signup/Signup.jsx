@@ -17,7 +17,6 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🟢 Signup attempt:", inputValue);
 
     try {
       const { data } = await axios.post(
@@ -29,7 +28,6 @@ const Signup = () => {
 
       const { success, message, user } = data;
       if (success) {
-        console.log("✅ User registered:", user);
         handleSuccess(message);
         console.log("🟢 Redirecting to dashboard...");
         // Full reload redirect because dashboard is on a different domain

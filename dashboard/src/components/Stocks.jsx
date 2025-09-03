@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Stocks = () => {
-  const { setPortfolio, refreshPortfolio } = useGeneralContext();
+  const { setPortfolio } = useGeneralContext();
 
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,12 @@ const Stocks = () => {
     async function fetchStocks() {
       try {
         const res = await StocksAPI.list({ limit: 200 });
-        const filteredStocks = (res.data?.data || []).filter((s) => s.name);
+        let filteredStocks = (res.data?.data || []).filter(
+          (s) =>
+            s.name &&
+            s.symbol !== "SENSEX" &&
+            s.symbol !== "NIFTY_50"
+        );
         setStocks(filteredStocks);
         console.log(`📊 Stocks rendered: ${filteredStocks.length}`);
       } catch (err) {

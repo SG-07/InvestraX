@@ -45,11 +45,6 @@ exports.summary = async (req, res) => {
       currentValue += curVal;
       todayPL += day;
 
-      // 🔍 Debug logs
-      console.log("---- Holding Debug ----");
-      console.log("Symbol:", h.symbol, "Qty:", h.qty, "Avg:", h.avg);
-      console.log("LTP:", ltp, "Invested:", inv, "Current:", curVal, "Net P&L:", net, "Day P&L:", day);
-
       holdingsOut.push({
         symbol: h.symbol,
         name: s?.name ?? h.symbol,
@@ -77,11 +72,6 @@ exports.summary = async (req, res) => {
       const net = curVal - inv;
       const day = (ltp - prevClose) * p.qty;
 
-      // 🔍 Debug logs
-      console.log("---- Position Debug ----");
-      console.log("Symbol:", p.symbol, "Qty:", p.qty, "Avg:", p.avg);
-      console.log("LTP:", ltp, "Invested:", inv, "Current:", curVal, "Net P&L:", net, "Day P&L:", day);
-
       positionsOut.push({
         symbol: p.symbol,
         name: s?.name ?? p.symbol,
@@ -102,10 +92,6 @@ exports.summary = async (req, res) => {
       const s = await Stocks.findOne({ symbol: w.symbol }).lean();
       if (!s) continue;
 
-      // 🔍 Debug logs
-      console.log("---- Watchlist Debug ----");
-      console.log("Symbol:", s.symbol, "Price:", s.price, "Change:", s.change, "Change%:", s.changepct);
-
       watchlistOut.push({
         symbol: s.symbol,
         name: s.name,
@@ -118,15 +104,6 @@ exports.summary = async (req, res) => {
 
     const profitLoss = currentValue - investedValue;
     const profitLossPct = investedValue > 0 ? (profitLoss / investedValue) * 100 : 0;
-
-    // 🔍 Final Debug
-    console.log("====== Portfolio Summary ======");
-    console.log("Balance:", portfolio.balance);
-    console.log("Invested:", investedValue);
-    console.log("Total Current:", currentValue);
-    console.log("Today P&L:", todayPL);
-    console.log("Net P&L:", profitLoss);
-    console.log("Net P&L %:", profitLossPct);
 
     // convert transaction dates before sending
     const transactionsOut = (portfolio.transactions || []).map(tx => ({
@@ -324,6 +301,7 @@ exports.orders = async (req, res) => {
 };
 
 /* ---------------- Stocks Breakdown ---------------- */
+/* ---------------- Doughnut Chart Data ---------------- */
 exports.breakdown = async (req, res) => {
   try {
     const portfolio = await Portfolio.findOne({ userId: req.user._id }).lean();
@@ -340,6 +318,12 @@ exports.breakdown = async (req, res) => {
       const curVal = ltp * h.qty;
       totalValue += curVal;
 
+      // 🔍 Debug for each holding
+      console.log("---- Breakdown Debug ----");
+      console.log("Symbol:", h.symbol);
+      console.log("Qty:", h.qty, "LTP:", ltp);
+      console.log("Current Value:", curVal);
+
       allocations.push({
         symbol: h.symbol,
         name: s?.name ?? h.symbol,
@@ -347,12 +331,27 @@ exports.breakdown = async (req, res) => {
       });
     }
 
-    const breakdown = allocations.map(item => ({
-      symbol: item.symbol,
-      name: item.name,
-      value: +item.value.toFixed(2),
-      percentage: totalValue > 0 ? +((item.value / totalValue) * 100).toFixed(2) : 0
-    }));
+    // 🔍 Debug before calculating percentages
+    console.log("Total Portfolio Value (for breakdown):", totalValue);
+    console.log("Allocations:", allocations);
+
+    const breakdown = allocations.map(item => {
+      const pct = totalValue > 0 ? (item.value / totalValue) * 100 : 0;
+
+      // 🔍 Debug for percentage calculation
+      console.log(
+        `Breakdown => ${item.symbol} | Value: ${item.value.toFixed(
+          2
+        )} | %: ${pct.toFixed(2)}`
+      );
+
+      return {
+        symbol: item.symbol,
+        name: item.name,
+        value: +item.value.toFixed(2),
+        percentage: +pct.toFixed(2),
+      };
+    });
 
     res.json(breakdown); // send array directly
   } catch (err) {
@@ -361,7 +360,9 @@ exports.breakdown = async (req, res) => {
   }
 };
 
+
 /* ---------------- SELL INFO ---------------- */
+/* ------------ Holdings/Positions/Transactions Table ---------- */
 exports.sellInfo = async (req, res) => {
   try {
     const { symbol, type } = req.params; // type = 'holding' | 'position'

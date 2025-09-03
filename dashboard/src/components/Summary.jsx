@@ -19,7 +19,6 @@ const Summary = () => {
     const fetchPortfolio = async () => {
       try {
         const { data } = await PortfolioAPI.summary();
-        console.log("📥 Portfolio data received:", data);
         setPortfolio(data); // update context with backend data
       } catch (err) {
         console.error("❌ Error fetching portfolio summary:", err);

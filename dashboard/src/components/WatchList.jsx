@@ -4,7 +4,7 @@ import WatchlistSearch from "./WatchlistSearch";
 import { DoughnutChart } from "./DoughnutChart";
 import { toast } from "react-toastify";
 import SellActionWindow from "./SellActionWindow";
-import BuyActionWindow from "./BuyActionWindow"; // ✅ import Buy window
+import BuyActionWindow from "./BuyActionWindow"; 
 import { PortfolioAPI } from "../services/api";
 
 export default function WatchList() {
