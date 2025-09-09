@@ -4,6 +4,27 @@
 [![Live Demo](https://img.shields.io/badge/Live-Demo-green?style=flat-square)](https://investrax-api.onrender.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 [![MongoDB](https://img.shields.io/badge/Database-MongoDB-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![MongoDB](https://img.shields.io/badge/MongoDB-4ea94b?style=flat-square&logo=mongodb&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
+
+
+---
+
+## 📑 Table of Contents
+- [Overview](#overview)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Quick Start](#-quick-start)
+- [API Endpoints](#-api-endpoints)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Acknowledgements](#-acknowledgements)
+- [Author](#-author)
 
 ---
 
@@ -20,7 +41,6 @@
 - Add stocks to a watchlist
 - See market indices like NIFTY and SENSEX
 
----
 
 ## Screenshots
 
@@ -271,6 +291,23 @@ npm run dev
 ### Note: Ensure you have .env files set up in the backend with your MongoDB URI, ALLOWED_ORIGINS, JWT secret, DASHBOARD_URL, FRONTEND_URL and
 SHEET_CSV_URL=https://docs.google.com/spreadsheets/d/e/2PACX-1vT4D3nHz5qZGdKTQIeimp4B2IQTzRu083hG9-yDAMUE2xJgOZ7BHsx4Q0FcZmf8nbq6aTXm4S0gEOOd/pub?gid=0&single=true&output=csv .
 
+
+## 🚀 Quick Start
+```bash
+# Clone repo
+git clone https://github.com/SG-07/InvestraX.git
+
+# Start backend
+cd backend && npm install && npm run dev
+
+# Start dashboard
+cd dashboard && npm install && npm run dev
+
+# Start frontend (landing pages)
+cd frontend && npm install && npm run dev
+```
+
+
 ## 🌐 API Endpoints
 ### Auth
 
@@ -311,9 +348,9 @@ SHEET_CSV_URL=https://docs.google.com/spreadsheets/d/e/2PACX-1vT4D3nHz5qZGdKTQIe
 - Real-time WebSocket updates for stock prices
 - Mobile-friendly PWA support
 
-Contributing
+##Contributing
 
-## Contributions are welcome!
+### Contributions are welcome!
 - Fork the repo
 - Create a new feature branch (git checkout -b feature/my-feature)
 - Commit your changes (git commit -m 'Add new feature')
